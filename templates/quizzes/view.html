@@ -1,0 +1,1048 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --bg: #f5f5f7;
+        --text: #1d1d1f;
+        --muted: #6e6e73;
+        --line: rgba(0, 0, 0, .08);
+        --blue: #0071e3;
+        --purple: #8b5cf6;
+        --pink: #ec4899;
+        --green: #16a34a;
+        --red: #dc2626;
+        --shadow:
+            0 22px 65px rgba(0, 0, 0, .07),
+            0 5px 18px rgba(0, 0, 0, .035);
+    }
+
+    .quiz-view {
+        min-height: 100vh;
+        padding: 40px 20px 100px;
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 5% 5%, rgba(96, 165, 250, .15), transparent 28%),
+            radial-gradient(circle at 95% 15%, rgba(244, 114, 182, .11), transparent 28%),
+            radial-gradient(circle at 50% 100%, rgba(167, 139, 250, .11), transparent 35%),
+            var(--bg);
+    }
+
+    .quiz-container {
+        max-width: 1050px;
+        margin: auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .ambient {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(100px);
+        pointer-events: none;
+        opacity: .18;
+        z-index: 0;
+        animation: drift 13s ease-in-out infinite alternate;
+    }
+
+    .ambient-a {
+        width: 300px;
+        height: 300px;
+        background: #60a5fa;
+        left: -120px;
+        top: 8%;
+    }
+
+    .ambient-b {
+        width: 260px;
+        height: 260px;
+        background: #f472b6;
+        right: -100px;
+        top: 50%;
+        animation-delay: -5s;
+    }
+
+    @keyframes drift {
+        from {
+            transform: translate(0, 0);
+        }
+
+        to {
+            transform: translate(25px, -20px);
+        }
+    }
+
+    /* Breadcrumb */
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: var(--muted);
+        font-size: 11px;
+        animation: reveal .55s ease both;
+    }
+
+    .breadcrumb a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--blue);
+    }
+
+    .breadcrumb-current {
+        max-width: 330px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text);
+        font-weight: 650;
+    }
+
+    /* Hero */
+
+    .quiz-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 31px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, .84);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        animation: reveal .7s .05s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .quiz-hero::after {
+        content: "";
+        position: absolute;
+        width: 330px;
+        height: 330px;
+        right: -160px;
+        top: -180px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #60a5fa, #8b5cf6, #ec4899);
+        filter: blur(75px);
+        opacity: .13;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 30px;
+    }
+
+    .badges {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 13px;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 27px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    .badge-subject {
+        color: #0066cc;
+        background: #e8f2ff;
+    }
+
+    .badge-private {
+        color: #b45309;
+        background: #fff3df;
+    }
+
+    .quiz-title {
+        margin: 0;
+        max-width: 700px;
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 1.05;
+        letter-spacing: -2px;
+        font-weight: 760;
+    }
+
+    .quiz-description {
+        max-width: 690px;
+        margin: 13px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .hero-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .start-btn {
+        min-height: 46px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 14px;
+        color: #fff;
+        background: linear-gradient(135deg, #0071e3, #2997ff);
+        box-shadow: 0 11px 27px rgba(0, 113, 227, .22);
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 750;
+        transition: .22s;
+    }
+
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 34px rgba(0, 113, 227, .29);
+    }
+
+    .secondary-btn {
+        min-height: 42px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--text);
+        background: rgba(255, 255, 255, .7);
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .secondary-btn:hover {
+        transform: translateY(-2px);
+        background: #fff;
+    }
+
+    .delete-btn {
+        color: #dc2626;
+        background: #fff1f2;
+        border-color: transparent;
+    }
+
+    .delete-btn:hover {
+        background: #fee2e2;
+    }
+
+    /* Stats */
+
+    .stats {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 27px;
+        padding-top: 21px;
+        border-top: 1px solid var(--line);
+    }
+
+    .stat {
+        padding: 13px 9px;
+        text-align: center;
+        border-radius: 15px;
+        background: rgba(247, 247, 249, .85);
+    }
+
+    .stat-value {
+        color: var(--text);
+        font-size: 17px;
+        font-weight: 760;
+        letter-spacing: -.5px;
+    }
+
+    .stat-label {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 9px;
+    }
+
+    /* Sections */
+
+    .section {
+        margin-top: 20px;
+        overflow: hidden;
+        border-radius: 27px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        animation: reveal .7s .13s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 22px 25px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .section-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 730;
+        letter-spacing: -.4px;
+    }
+
+    .count {
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: #0066cc;
+        background: #e8f2ff;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    /* Questions */
+
+    .question {
+        padding: 23px 25px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .question:last-child {
+        border-bottom: 0;
+    }
+
+    .question-row {
+        display: flex;
+        gap: 14px;
+    }
+
+    .question-number {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 11px;
+        color: var(--blue);
+        background: #e8f2ff;
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .question-text {
+        margin: 4px 0 0;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 680;
+    }
+
+    .options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+        margin: 15px 0 0 48px;
+    }
+
+    .option {
+        padding: 10px 12px;
+        border-radius: 11px;
+        background: #f7f7f9;
+        color: #55555b;
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .option strong {
+        color: var(--text);
+    }
+
+    .explanation {
+        margin: 11px 0 0 48px;
+        padding: 11px 13px;
+        border-radius: 11px;
+        color: #15803d;
+        background: #effbf3;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    /* Empty */
+
+    .empty {
+        padding: 65px 25px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 65px;
+        height: 65px;
+        display: grid;
+        place-items: center;
+        margin: auto auto 15px;
+        border-radius: 20px;
+        color: var(--purple);
+        background: linear-gradient(145deg, #eeeaff, #f4f0ff);
+    }
+
+    .empty-title {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 720;
+    }
+
+    .empty-description {
+        max-width: 430px;
+        margin: 7px auto 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .empty-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 18px;
+        min-height: 40px;
+        padding: 0 15px;
+        border-radius: 12px;
+        color: #fff;
+        background: var(--blue);
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* Attempts */
+
+    .attempt {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 19px 25px;
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid var(--line);
+        transition: .2s;
+    }
+
+    .attempt:last-child {
+        border-bottom: 0;
+    }
+
+    .attempt:hover {
+        background: #fafafd;
+    }
+
+    .attempt-left {
+        min-width: 0;
+    }
+
+    .attempt-name {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 750;
+    }
+
+    .status-pass {
+        color: #15803d;
+        background: #e9f9ef;
+    }
+
+    .status-fail {
+        color: #dc2626;
+        background: #fff1f2;
+    }
+
+    .attempt-info {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+    .attempt-score {
+        color: var(--green);
+        font-size: 22px;
+        font-weight: 760;
+    }
+
+    .attempt-score.fail {
+        color: var(--red);
+    }
+
+    /* Animations */
+
+    @keyframes reveal {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+
+    @media(max-width:850px) {
+        .hero-content {
+            flex-direction: column;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .stats .stat:nth-child(4),
+        .stats .stat:nth-child(5) {
+            grid-column: span 1;
+        }
+    }
+
+    @media(max-width:650px) {
+
+        .quiz-view {
+            padding: 28px 14px 75px;
+        }
+
+        .quiz-hero {
+            padding: 24px 20px;
+            border-radius: 25px;
+        }
+
+        .quiz-title {
+            font-size: 32px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero-actions {
+            width: 100%;
+        }
+
+        .start-btn,
+        .secondary-btn {
+            flex: 1;
+        }
+
+        .stats {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stats .stat:nth-child(5) {
+            grid-column: span 2;
+        }
+
+        .options {
+            grid-template-columns: 1fr;
+            margin-left: 0;
+        }
+
+        .explanation {
+            margin-left: 0;
+        }
+
+        .question {
+            padding: 20px 18px;
+        }
+
+        .section-header {
+            padding: 20px 18px;
+        }
+
+        .attempt {
+            padding: 17px 18px;
+        }
+    }
+</style>
+
+
+<div class="quiz-view">
+
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+
+    <main class="quiz-container">
+
+        <!-- Breadcrumb -->
+
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+
+            <a href="{{ url_for('index') }}">
+                Home
+            </a>
+
+            <i data-lucide="chevron-right" width="13"></i>
+
+            <a href="{{ url_for('quizzes.index') }}">
+                Quizzes
+            </a>
+
+            <i data-lucide="chevron-right" width="13"></i>
+
+            <span class="breadcrumb-current">
+                {{ quiz.title }}
+            </span>
+
+        </nav>
+
+
+        <!-- Hero -->
+
+        <section class="quiz-hero">
+
+            <div class="hero-content">
+
+                <div>
+
+                    <div class="badges">
+
+                        <span class="badge badge-subject">
+                            {{ quiz.subject.name }}
+                        </span>
+
+                        {% if not quiz.is_public %}
+
+                        <span class="badge badge-private">
+
+                            <i data-lucide="lock" width="11"></i>
+
+                            Private
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <h1 class="quiz-title">
+                        {{ quiz.title }}
+                    </h1>
+
+
+                    {% if quiz.description %}
+
+                    <p class="quiz-description">
+                        {{ quiz.description }}
+                    </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="hero-actions">
+
+                    {% if current_user.is_authenticated %}
+
+                    <a href="{{ url_for('quizzes.start', quiz_id=quiz.id) }}" class="start-btn">
+
+                        <i data-lucide="play" width="15"></i>
+
+                        Start Quiz
+
+                    </a>
+
+                    {% else %}
+
+                    <a href="{{ url_for('auth.login', next=request.url) }}" class="start-btn">
+
+                        <i data-lucide="log-in" width="15"></i>
+
+                        Sign In to Start
+
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if current_user.is_authenticated
+                    and quiz.creator_id == current_user.id %}
+
+                    <a href="{{ url_for('quizzes.add_question', quiz_id=quiz.id) }}" class="secondary-btn">
+
+                        <i data-lucide="plus" width="14"></i>
+
+                        Add Question
+
+                    </a>
+
+
+                    <form method="POST" action="{{ url_for('quizzes.delete', quiz_id=quiz.id) }}"
+                        onsubmit="return confirm('Are you sure you want to delete this quiz?')">
+
+                        <button type="submit" class="secondary-btn delete-btn">
+
+                            <i data-lucide="trash-2" width="14"></i>
+
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- Stats -->
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-value">
+                        {{ quiz.question_count }}
+                    </div>
+
+                    <div class="stat-label">
+                        Questions
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-value">
+                        {{ quiz.time_limit }}m
+                    </div>
+
+                    <div class="stat-label">
+                        Time Limit
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-value">
+                        {{ quiz.passing_score }}%
+                    </div>
+
+                    <div class="stat-label">
+                        Passing Score
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-value">
+                        {{ quiz.attempt_count }}
+                    </div>
+
+                    <div class="stat-label">
+                        Attempts
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-value">
+                        {{ quiz.created_at|timeago }}
+                    </div>
+
+                    <div class="stat-label">
+                        Created
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Questions -->
+
+        <section class="section">
+
+            <header class="section-header">
+
+                <h2 class="section-title">
+                    Questions
+                </h2>
+
+                <span class="count">
+                    {{ questions|length }}
+                </span>
+
+            </header>
+
+
+            {% if questions %}
+
+            {% for question in questions %}
+
+            <article class="question">
+
+                <div class="question-row">
+
+                    <div class="question-number">
+                        {{ loop.index }}
+                    </div>
+
+                    <div style="flex:1;min-width:0;">
+
+                        <p class="question-text">
+                            {{ question.question_text }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="options">
+
+                    <div class="option">
+                        <strong>A.</strong>
+                        {{ question.option_a }}
+                    </div>
+
+                    <div class="option">
+                        <strong>B.</strong>
+                        {{ question.option_b }}
+                    </div>
+
+                    <div class="option">
+                        <strong>C.</strong>
+                        {{ question.option_c }}
+                    </div>
+
+                    <div class="option">
+                        <strong>D.</strong>
+                        {{ question.option_d }}
+                    </div>
+
+                </div>
+
+
+                {% if question.explanation %}
+
+                <div class="explanation">
+
+                    <strong>Explanation:</strong>
+                    {{ question.explanation }}
+
+                </div>
+
+                {% endif %}
+
+            </article>
+
+            {% endfor %}
+
+            {% else %}
+
+            <div class="empty">
+
+                <div class="empty-icon">
+
+                    <i data-lucide="help-circle" width="29"></i>
+
+                </div>
+
+
+                <h3 class="empty-title">
+                    No questions yet
+                </h3>
+
+
+                <p class="empty-description">
+                    This quiz doesn't have any questions.
+                    Add some to get started.
+                </p>
+
+
+                {% if current_user.is_authenticated
+                and quiz.creator_id == current_user.id %}
+
+                <a href="{{ url_for('quizzes.add_question', quiz_id=quiz.id) }}" class="empty-action">
+
+                    <i data-lucide="plus" width="14"></i>
+
+                    Add Question
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- Attempts -->
+
+        {% if user_attempts %}
+
+        <section class="section">
+
+            <header class="section-header">
+
+                <h2 class="section-title">
+                    Your Attempts
+                </h2>
+
+                <span class="count">
+                    {{ user_attempts|length }}
+                </span>
+
+            </header>
+
+
+            {% for attempt in user_attempts %}
+
+            <a href="{{ url_for('quizzes.result', attempt_id=attempt.id) }}" class="attempt">
+
+                <div class="attempt-left">
+
+                    <div class="attempt-name">
+
+                        Attempt #{{ loop.index }}
+
+
+                        {% if attempt.passed %}
+
+                        <span class="status status-pass">
+
+                            <i data-lucide="check-circle" width="10"></i>
+
+                            Passed
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="status status-fail">
+
+                            <i data-lucide="x-circle" width="10"></i>
+
+                            Failed
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="attempt-info">
+
+                        {{ attempt.completed_at|timeago }}
+
+                        ·
+
+                        {{ attempt.correct_answers }}/{{ attempt.total_questions }}
+
+                        correct
+
+                    </div>
+
+                </div>
+
+
+                <div class="attempt-score
+                    {% if not attempt.passed %}fail{% endif %}">
+                    {{ attempt.percentage }}%
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </section>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

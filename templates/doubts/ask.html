@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .ask-page {
+        min-height: 100vh;
+        padding: 42px 20px 110px;
+        background:
+            radial-gradient(circle at 5% 5%, rgba(96, 165, 250, .15), transparent 28%),
+            radial-gradient(circle at 95% 15%, rgba(244, 114, 182, .12), transparent 28%),
+            radial-gradient(circle at 50% 100%, rgba(167, 139, 250, .11), transparent 35%),
+            #f5f5f7;
+        color: #1d1d1f;
+    }
+
+    .ask-container {
+        max-width: 820px;
+        margin: 0 auto;
+    }
+
+    .ask-header {
+        margin-bottom: 26px;
+    }
+
+    .ask-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .75);
+        border: 1px solid rgba(255, 255, 255, .9);
+        color: #6e6e73;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .04);
+    }
+
+    .ask-eyebrow i {
+        color: #0071e3;
+    }
+
+    .ask-title {
+        margin: 17px 0 7px;
+        font-size: clamp(38px, 5vw, 52px);
+        line-height: 1;
+        letter-spacing: -2.5px;
+        font-weight: 760;
+    }
+
+    .ask-gradient {
+        background: linear-gradient(100deg,
+                #0071e3,
+                #8b5cf6 55%,
+                #ec4899);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .ask-subtitle {
+        margin: 0;
+        color: #6e6e73;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .ask-card {
+        overflow: hidden;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow:
+            0 22px 65px rgba(0, 0, 0, .07),
+            0 5px 18px rgba(0, 0, 0, .035);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .ask-card-header {
+        padding: 22px 26px;
+        border-bottom: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .ask-card-header-inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ask-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: #e8f2ff;
+        color: #0071e3;
+        flex-shrink: 0;
+    }
+
+    .ask-card-title {
+        margin: 0;
+        color: #1d1d1f;
+        font-size: 17px;
+        font-weight: 720;
+    }
+
+    .ask-card-description {
+        margin: 3px 0 0;
+        color: #6e6e73;
+        font-size: 12px;
+    }
+
+    .ask-form {
+        padding: 26px;
+    }
+
+    .ask-field {
+        margin-bottom: 21px;
+    }
+
+    .ask-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #1d1d1f;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    .ask-input {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 0, 0, .08);
+        background: #f8f8fa;
+        color: #1d1d1f;
+        outline: none;
+        font: inherit;
+        font-size: 13px;
+        transition: .2s ease;
+        box-sizing: border-box;
+    }
+
+    textarea.ask-input {
+        min-height: 145px;
+        padding: 13px 14px;
+        resize: vertical;
+        line-height: 1.55;
+    }
+
+    .ask-input::placeholder {
+        color: #a1a1a6;
+    }
+
+    .ask-input:focus {
+        background: #fff;
+        border-color: rgba(0, 113, 227, .35);
+        box-shadow: 0 0 0 4px rgba(0, 113, 227, .07);
+    }
+
+    .ask-help {
+        margin: 6px 0 0;
+        color: #8e8e93;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .ask-actions {
+        display: flex;
+        gap: 10px;
+        padding-top: 21px;
+        border-top: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .ask-submit,
+    .ask-cancel {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex: 1;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .ask-submit {
+        border: 0;
+        color: #fff;
+        background: linear-gradient(135deg, #0071e3, #2997ff);
+        box-shadow: 0 10px 24px rgba(0, 113, 227, .18);
+    }
+
+    .ask-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(0, 113, 227, .25);
+    }
+
+    .ask-cancel {
+        color: #1d1d1f;
+        background: #f3f3f5;
+        border: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .ask-cancel:hover {
+        background: #eaeaed;
+        transform: translateY(-2px);
+    }
+
+    .ask-tip {
+        margin-top: 16px;
+        padding: 15px 17px;
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        border-radius: 17px;
+        background: rgba(255, 255, 255, .65);
+        border: 1px solid rgba(255, 255, 255, .9);
+    }
+
+    .ask-tip-icon {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: #f0eaff;
+        color: #8b5cf6;
+        flex-shrink: 0;
+    }
+
+    .ask-tip-title {
+        margin: 0;
+        color: #1d1d1f;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .ask-tip-text {
+        margin: 3px 0 0;
+        color: #6e6e73;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 650px) {
+
+        .ask-page {
+            padding: 28px 14px 80px;
+        }
+
+        .ask-title {
+            font-size: 40px;
+            letter-spacing: -2px;
+        }
+
+        .ask-card-header,
+        .ask-form {
+            padding: 20px;
+        }
+
+        .ask-actions {
+            flex-direction: column-reverse;
+        }
+
+        .ask-submit,
+        .ask-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="ask-page">
+
+    <main class="ask-container">
+
+        <!-- Header -->
+
+        <header class="ask-header">
+
+            <div class="ask-eyebrow">
+
+                <i data-lucide="help-circle" width="13"></i>
+
+                STUDY COMMUNITY
+
+            </div>
+
+
+            <h1 class="ask-title">
+
+                Ask a
+                <span class="ask-gradient">
+                    Doubt.
+                </span>
+
+            </h1>
+
+
+            <p class="ask-subtitle">
+                Get help from the community on topics you're stuck on.
+            </p>
+
+        </header>
+
+
+        <!-- Form Card -->
+
+        <section class="ask-card">
+
+            <div class="ask-card-header">
+
+                <div class="ask-card-header-inner">
+
+                    <div class="ask-icon">
+
+                        <i data-lucide="message-circle-question" width="21"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="ask-card-title">
+                            Question Details
+                        </h2>
+
+                        <p class="ask-card-description">
+                            Give enough detail so others can understand and help.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <form method="POST" action="{{ url_for('doubts.ask') }}" class="ask-form">
+
+                <!-- Subject -->
+
+                <div class="ask-field">
+
+                    <label for="subject_id" class="ask-label">
+                        Subject
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="subject_id" name="subject_id" class="ask-input" required>
+
+                        <option value="">
+                            Select a subject
+                        </option>
+
+                        {% for subject in subjects %}
+
+                        <option value="{{ subject.id }}" {% if request.args.get('subject')==subject.id|string %}
+                            selected {% endif %}>
+                            {{ subject.name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Title -->
+
+                <div class="ask-field">
+
+                    <label for="title" class="ask-label">
+                        Question Title
+                        <span class="required">*</span>
+                    </label>
+
+                    <input type="text" id="title" name="title" class="ask-input"
+                        placeholder="e.g. How does recursion work in Python?"
+                        value="{{ form_data.title if form_data else '' }}" required maxlength="200">
+
+                    <p class="ask-help">
+                        Be specific and descriptive so people immediately understand your question.
+                    </p>
+
+                </div>
+
+
+                <!-- Details -->
+
+                <div class="ask-field">
+
+                    <label for="content" class="ask-label">
+                        Details
+                        <span class="required">*</span>
+                    </label>
+
+                    <textarea id="content" name="content" class="ask-input"
+                        placeholder="Describe your doubt in detail. Include what you've tried, relevant code snippets, error messages, or specific concepts you're confused about..."
+                        required minlength="10">{{ form_data.content if form_data else '' }}</textarea>
+
+                    <p class="ask-help">
+                        The more context you provide, the easier it is for someone to give you a useful answer.
+                    </p>
+
+                </div>
+
+
+                <!-- Tags -->
+
+                <div class="ask-field">
+
+                    <label for="tags" class="ask-label">
+                        Tags
+                        <span style="color:#8e8e93;font-weight:500;">
+                            (optional)
+                        </span>
+                    </label>
+
+                    <input type="text" id="tags" name="tags" class="ask-input"
+                        placeholder="e.g. recursion, python, algorithms"
+                        value="{{ form_data.tags if form_data else '' }}">
+
+                    <p class="ask-help">
+                        Use comma-separated tags to help others find your doubt.
+                    </p>
+
+                </div>
+
+
+                <!-- Actions -->
+
+                <div class="ask-actions">
+
+                    <a href="{{ url_for('doubts.index') }}" class="ask-cancel">
+
+                        <i data-lucide="arrow-left" width="15"></i>
+
+                        Cancel
+
+                    </a>
+
+
+                    <button type="submit" class="ask-submit">
+
+                        <i data-lucide="send" width="15"></i>
+
+                        Post Doubt
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- Tip -->
+
+        <div class="ask-tip">
+
+            <div class="ask-tip-icon">
+
+                <i data-lucide="lightbulb" width="16"></i>
+
+            </div>
+
+            <div>
+
+                <p class="ask-tip-title">
+                    Tip for a better answer
+                </p>
+
+                <p class="ask-tip-text">
+                    Explain what you've already tried and where you're getting stuck.
+                    This helps other students give you a more useful answer.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        document.getElementById('title')?.focus();
+
+    });
+
+</script>
+
+{% endblock %}

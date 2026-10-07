@@ -1,0 +1,653 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .subjects-page {
+        min-height: 100vh;
+        padding: 82px 20px 100px;
+        box-sizing: border-box;
+        background:
+            radial-gradient(circle at 5% 5%,
+                rgba(96, 165, 250, .15),
+                transparent 28%),
+            radial-gradient(circle at 95% 15%,
+                rgba(244, 114, 182, .12),
+                transparent 28%),
+            radial-gradient(circle at 50% 100%,
+                rgba(167, 139, 250, .11),
+                transparent 35%),
+            #f5f5f7;
+        color: #1d1d1f;
+    }
+
+    .subjects-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+
+    .subjects-header {
+        margin-bottom: 28px;
+    }
+
+    .subjects-header-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .subjects-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .78);
+        border: 1px solid rgba(255, 255, 255, .9);
+        color: #6e6e73;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .04);
+    }
+
+    .subjects-eyebrow i {
+        color: #0071e3;
+    }
+
+    .subjects-title {
+        margin: 17px 0 7px;
+        font-size: clamp(38px, 5vw, 58px);
+        line-height: 1;
+        letter-spacing: -3px;
+        font-weight: 760;
+    }
+
+    .subjects-gradient {
+        background: linear-gradient(100deg,
+                #0071e3,
+                #8b5cf6 55%,
+                #ec4899);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .subjects-subtitle {
+        margin: 0;
+        color: #6e6e73;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    /* Search */
+
+    .subjects-search {
+        position: relative;
+        width: 320px;
+        flex-shrink: 0;
+    }
+
+    .subjects-search i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8e8e93;
+        pointer-events: none;
+    }
+
+    .subjects-search-input {
+        width: 100%;
+        min-height: 47px;
+        padding: 0 15px 0 42px;
+        box-sizing: border-box;
+        border-radius: 15px;
+        border: 1px solid rgba(0, 0, 0, .08);
+        background: rgba(255, 255, 255, .82);
+        color: #1d1d1f;
+        outline: none;
+        font-size: 12px;
+        transition: .2s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .04);
+    }
+
+    .subjects-search-input:focus {
+        background: #fff;
+        border-color: rgba(0, 113, 227, .35);
+        box-shadow:
+            0 0 0 4px rgba(0, 113, 227, .07),
+            0 10px 28px rgba(0, 0, 0, .06);
+    }
+
+    /* Grid */
+
+    .subjects-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .subject-card {
+        display: block;
+        min-width: 0;
+        padding: 22px;
+        border-radius: 25px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow:
+            0 18px 55px rgba(0, 0, 0, .065),
+            0 4px 15px rgba(0, 0, 0, .03);
+        color: inherit;
+        text-decoration: none;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        transition:
+            transform .22s ease,
+            box-shadow .22s ease,
+            border-color .22s ease;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(0, 113, 227, .18);
+        box-shadow:
+            0 25px 65px rgba(0, 0, 0, .10),
+            0 8px 22px rgba(0, 0, 0, .04);
+    }
+
+    .subject-card-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .subject-icon {
+        width: 55px;
+        height: 55px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 17px;
+        transition: transform .22s ease;
+    }
+
+    .subject-card:hover .subject-icon {
+        transform: scale(1.06) rotate(-2deg);
+    }
+
+    .subject-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .subject-name {
+        margin: 2px 0 0;
+        color: #1d1d1f;
+        font-size: 15px;
+        line-height: 1.35;
+        font-weight: 720;
+        letter-spacing: -.2px;
+        transition: color .2s ease;
+    }
+
+    .subject-card:hover .subject-name {
+        color: #0071e3;
+    }
+
+    .subject-description {
+        margin: 7px 0 0;
+        color: #6e6e73;
+        font-size: 11px;
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Stats */
+
+    .subject-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 17px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(0, 0, 0, .07);
+    }
+
+    .subject-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #8e8e93;
+        font-size: 9px;
+        font-weight: 600;
+    }
+
+    .subject-stat i {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Pagination */
+
+    .subjects-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 28px;
+    }
+
+    .subjects-page-btn {
+        min-height: 38px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+        transition: .2s ease;
+    }
+
+    .subjects-page-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .subjects-page-prev {
+        color: #1d1d1f;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .subjects-page-next {
+        color: #fff;
+        background: #1d1d1f;
+    }
+
+    .subjects-page-info {
+        padding: 0 12px;
+        color: #6e6e73;
+        font-size: 11px;
+    }
+
+    /* Empty */
+
+    .subjects-empty {
+        padding: 75px 25px;
+        text-align: center;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow:
+            0 22px 65px rgba(0, 0, 0, .07),
+            0 5px 18px rgba(0, 0, 0, .035);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .subjects-empty-icon {
+        width: 70px;
+        height: 70px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 18px;
+        border-radius: 22px;
+        color: #0071e3;
+        background: linear-gradient(145deg,
+                #e8f2ff,
+                #f0eaff);
+    }
+
+    .subjects-empty-title {
+        margin: 0;
+        color: #1d1d1f;
+        font-size: 20px;
+        font-weight: 720;
+    }
+
+    .subjects-empty-description {
+        margin: 8px auto 0;
+        max-width: 430px;
+        color: #6e6e73;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 1100px) {
+
+        .subjects-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 800px) {
+
+        .subjects-header-row {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .subjects-search {
+            width: 100%;
+        }
+
+        .subjects-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+
+        .subjects-page {
+            padding: 65px 14px 70px;
+            box-sizing: border-box;
+        }
+
+        .subjects-title {
+            font-size: 40px;
+            letter-spacing: -2px;
+        }
+
+        .subjects-subtitle {
+            font-size: 14px;
+        }
+
+        .subjects-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .subject-card {
+            padding: 19px;
+            border-radius: 22px;
+        }
+
+        .subject-icon {
+            width: 52px;
+            height: 52px;
+        }
+
+        .subjects-pagination {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+
+<div class="subjects-page">
+
+    <main class="subjects-container">
+
+        <!-- Header -->
+
+        <header class="subjects-header">
+
+            <div class="subjects-header-row">
+
+                <div>
+
+                    <div class="subjects-eyebrow">
+
+                        <i data-lucide="library" width="13"></i>
+
+                        STUDY LIBRARY
+
+                    </div>
+
+
+                    <h1 class="subjects-title">
+
+                        Browse
+
+                        <span class="subjects-gradient">
+                            Subjects.
+                        </span>
+
+                    </h1>
+
+
+                    <p class="subjects-subtitle">
+                        Explore study materials across different disciplines.
+                    </p>
+
+                </div>
+
+
+                <form method="GET" action="{{ url_for('subjects.index') }}" class="subjects-search">
+
+                    <i data-lucide="search" width="17"></i>
+
+
+                    <input type="text" name="search" class="subjects-search-input" placeholder="Search subjects..."
+                        value="{{ search }}" autocomplete="off">
+
+                </form>
+
+            </div>
+
+        </header>
+
+
+        {% if subjects.items %}
+
+        <!-- Subjects -->
+
+        <section class="subjects-grid">
+
+            {% for subject in subjects.items %}
+
+            <a href="{{ url_for('subjects.show', slug=subject.slug) }}" class="subject-card">
+
+                <div class="subject-card-top">
+
+                    <div class="subject-icon" style="
+                            background-color:
+                            {{ subject.color }}15;
+                        ">
+
+                        <i data-lucide="{{ subject.icon }}" width="27" height="27" style="
+                                color:
+                                {{ subject.color }};
+                            "></i>
+
+                    </div>
+
+
+                    <div class="subject-info">
+
+                        <h2 class="subject-name">
+                            {{ subject.name }}
+                        </h2>
+
+
+                        <p class="subject-description">
+                            {{ subject.description }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="subject-stats">
+
+                    <span class="subject-stat">
+
+                        <i data-lucide="file-text"></i>
+
+                        {{ StudyMaterial.query.filter_by(
+                        subject_id=subject.id,
+                        is_public=True
+                        ).count() }}
+
+                        materials
+
+                    </span>
+
+
+                    <span class="subject-stat">
+
+                        <i data-lucide="clipboard-check"></i>
+
+                        {{ Quiz.query.filter_by(
+                        subject_id=subject.id,
+                        is_public=True
+                        ).count() }}
+
+                        quizzes
+
+                    </span>
+
+
+                    <span class="subject-stat">
+
+                        <i data-lucide="help-circle"></i>
+
+                        {{ Doubt.query.filter_by(
+                        subject_id=subject.id
+                        ).count() }}
+
+                        doubts
+
+                    </span>
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </section>
+
+
+        <!-- Pagination -->
+
+        {% if subjects.pages > 1 %}
+
+        <div class="subjects-pagination">
+
+            {% if subjects.has_prev %}
+
+            <a href="{{ url_for(
+                    'subjects.index',
+                    page=subjects.prev_num,
+                    search=search
+                ) }}" class="subjects-page-btn subjects-page-prev">
+
+                <i data-lucide="chevron-left" width="14"></i>
+
+                Previous
+
+            </a>
+
+            {% endif %}
+
+
+            <span class="subjects-page-info">
+
+                Page {{ subjects.page }}
+                of {{ subjects.pages }}
+
+            </span>
+
+
+            {% if subjects.has_next %}
+
+            <a href="{{ url_for(
+                    'subjects.index',
+                    page=subjects.next_num,
+                    search=search
+                ) }}" class="subjects-page-btn subjects-page-next">
+
+                Next
+
+                <i data-lucide="chevron-right" width="14"></i>
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+
+        {% else %}
+
+        <!-- Empty -->
+
+        <section class="subjects-empty">
+
+            <div class="subjects-empty-icon">
+
+                <i data-lucide="book-open" width="30" height="30"></i>
+
+            </div>
+
+
+            <h3 class="subjects-empty-title">
+                No subjects found
+            </h3>
+
+
+            <p class="subjects-empty-description">
+
+                {% if search %}
+
+                Try adjusting your search terms.
+
+                {% else %}
+
+                No subjects are available yet.
+
+                {% endif %}
+
+            </p>
+
+        </section>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
+
+    <!-- Header -->
+
+    <div class="page-header">
+
+        <div class="flex items-center gap-2 mb-3">
+
+            <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-600 text-xs font-semibold">
+                <i data-lucide="messages-square" class="w-3.5 h-3.5"></i>
+                Community
+            </span>
+
+        </div>
+
+        <h1 class="page-title">
+            Create Discussion
+        </h1>
+
+        <p class="page-subtitle">
+            Start a conversation, ask a question, or share an idea with the community.
+        </p>
+
+    </div>
+
+
+    <!-- Main Card -->
+
+    <div class="card">
+
+        <!-- Card Header -->
+
+        <div class="card-header">
+
+            <div class="flex items-center gap-3">
+
+                <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center">
+
+                    <i data-lucide="message-square-plus" class="w-5 h-5 text-primary-600"></i>
+
+                </div>
+
+                <div>
+
+                    <h2 class="text-lg font-semibold text-secondary-900">
+                        Start a new discussion
+                    </h2>
+
+                    <p class="text-xs text-secondary-500 mt-1">
+                        Share something useful with fellow students.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Form -->
+
+        <div class="card-body">
+
+            <form method="POST" action="{{ url_for('discussions.create') }}" class="space-y-6">
+
+
+                <!-- Subject -->
+
+                <div>
+
+                    <label for="subject_id" class="label">
+                        Subject
+                        <span class="text-error-500">*</span>
+                    </label>
+
+                    <div class="relative">
+
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary-400 pointer-events-none">
+
+                            <i data-lucide="book-open" class="w-4 h-4"></i>
+
+                        </span>
+
+
+                        <select id="subject_id" name="subject_id" class="input pl-11" required>
+
+                            <option value="">
+                                Select a subject
+                            </option>
+
+                            {% for subject in subjects %}
+
+                            <option value="{{ subject.id }}" {% if request.args.get('subject')==subject.id|string
+                                %}selected{% endif %}>
+                                {{ subject.name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Title -->
+
+                <div>
+
+                    <div class="flex items-center justify-between gap-3 mb-1.5">
+
+                        <label for="title" class="label mb-0">
+                            Discussion Title
+                            <span class="text-error-500">*</span>
+                        </label>
+
+                        <span id="title-counter" class="text-xs text-secondary-400">
+                            0 / 200
+                        </span>
+
+                    </div>
+
+
+                    <div class="relative">
+
+                        <span class="absolute left-3.5 top-3.5 text-secondary-400 pointer-events-none">
+
+                            <i data-lucide="heading" class="w-4 h-4"></i>
+
+                        </span>
+
+
+                        <input type="text" id="title" name="title" class="input pl-11"
+                            placeholder="e.g. Best resources for learning React?"
+                            value="{{ form_data.title if form_data else '' }}" required maxlength="200">
+
+                    </div>
+
+                </div>
+
+
+                <!-- Content -->
+
+                <div>
+
+                    <div class="flex items-center justify-between gap-3 mb-1.5">
+
+                        <label for="content" class="label mb-0">
+                            Content
+                            <span class="text-error-500">*</span>
+                        </label>
+
+                        <span id="content-counter" class="text-xs text-secondary-400">
+                            0 characters
+                        </span>
+
+                    </div>
+
+
+                    <textarea id="content" name="content" rows="9" class="input resize-none"
+                        placeholder="Share your thoughts, ask a question, start a debate, or explain what you need help with..."
+                        required minlength="20">{{ form_data.content if form_data else '' }}</textarea>
+
+
+                    <div class="flex items-center justify-between gap-4 mt-2">
+
+                        <p class="text-xs text-secondary-400">
+                            Please provide at least 20 characters.
+                        </p>
+
+                        <p id="content-status" class="text-xs text-secondary-400"></p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Helpful Tip -->
+
+                <div class="rounded-2xl bg-primary-50 border border-primary-100 p-4">
+
+                    <div class="flex items-start gap-3">
+
+                        <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
+
+                            <i data-lucide="lightbulb" class="w-4 h-4 text-primary-600"></i>
+
+                        </div>
+
+
+                        <div>
+
+                            <p class="text-sm font-semibold text-secondary-900">
+                                Make your discussion useful
+                            </p>
+
+                            <p class="text-xs text-secondary-500 mt-1 leading-relaxed">
+                                Give your post a clear title and enough context so other students can understand and
+                                respond easily.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Actions -->
+
+                <div class="pt-5 border-t border-secondary-100">
+
+                    <div class="flex flex-col-reverse sm:flex-row gap-3">
+
+                        <a href="{{ url_for('discussions.index') }}" class="btn-outline flex-1 justify-center">
+
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+
+                            Cancel
+
+                        </a>
+
+
+                        <button type="submit" class="btn-primary flex-1 justify-center">
+
+                            <i data-lucide="send" class="w-4 h-4"></i>
+
+                            Create Discussion
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* Icons */
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+
+        /* Focus title */
+
+        document
+            .getElementById('title')
+            ?.focus();
+
+
+        /* Counters */
+
+        updateTitleCounter();
+        updateContentCounter();
+
+    });
+
+
+    /* =========================================================
+       TITLE COUNTER
+    ========================================================= */
+
+    function updateTitleCounter() {
+
+        const title =
+            document.getElementById('title');
+
+        const counter =
+            document.getElementById('title-counter');
+
+
+        if (!title || !counter) {
+            return;
+        }
+
+
+        counter.textContent =
+            `${title.value.length} / 200`;
+
+    }
+
+
+    const titleInput =
+        document.getElementById('title');
+
+    if (titleInput) {
+
+        titleInput.addEventListener(
+            'input',
+            updateTitleCounter
+        );
+
+    }
+
+
+    /* =========================================================
+       CONTENT COUNTER
+    ========================================================= */
+
+    function updateContentCounter() {
+
+        const content =
+            document.getElementById('content');
+
+        const counter =
+            document.getElementById('content-counter');
+
+        const status =
+            document.getElementById('content-status');
+
+
+        if (!content || !counter) {
+            return;
+        }
+
+
+        const length =
+            content.value.length;
+
+
+        counter.textContent =
+            `${length} characters`;
+
+
+        if (status) {
+
+            if (!length) {
+
+                status.textContent = '';
+
+                status.className =
+                    'text-xs text-secondary-400';
+
+            }
+
+            else if (length < 20) {
+
+                status.textContent =
+                    `${20 - length} more needed`;
+
+                status.className =
+                    'text-xs text-warning-600';
+
+            }
+
+            else {
+
+                status.textContent =
+                    'Looks good';
+
+                status.className =
+                    'text-xs text-success-600';
+
+            }
+
+        }
+
+    }
+
+
+    const contentInput =
+        document.getElementById('content');
+
+    if (contentInput) {
+
+        contentInput.addEventListener(
+            'input',
+            updateContentCounter
+        );
+
+    }
+
+</script>
+
+{% endblock %}

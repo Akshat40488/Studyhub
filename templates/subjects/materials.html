@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8">
+    <!-- Header -->
+    <div class="mb-8 animate-slide-up">
+        <nav class="flex items-center gap-2 text-sm text-surface-500 mb-4" aria-label="Breadcrumb">
+            <a href="{{ url_for('index') }}" class="hover:text-surface-300 transition-colors duration-150">Home</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ url_for('subjects.index') }}" class="hover:text-surface-300 transition-colors duration-150">Subjects</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-white">{{ subject.name }}</span>
+        </nav>
+        
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: {{ subject.color }}15;">
+                        <i data-lucide="{{ subject.icon }}" class="w-8 h-8" style="color: {{ subject.color }}"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">{{ subject.name }}</h1>
+                        <p class="text-surface-400">{{ subject.description }}</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-4 text-sm text-surface-500">
+                    <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-4 h-4"></i>{{ material_count }} materials</span>
+                    <span class="flex items-center gap-1"><i data-lucide="clipboard-check" class="w-4 h-4"></i>{{ quiz_count }} quizzes</span>
+                    <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-4 h-4"></i>{{ doubt_count }} doubts</span>
+                    <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-4 h-4"></i>{{ discussion_count }} discussions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Materials -->
+    <div class="animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-white">Study Materials</h2>
+            <div class="flex items-center gap-3">
+                <a href="{{ url_for('materials.upload') }}?subject={{ subject.id }}" class="btn-primary">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    Upload
+                </a>
+            </div>
+        </div>
+        
+        {% if materials.items %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {% for material in materials.items %}
+            <a href="{{ url_for('materials.view', material_id=material.id) }}" class="card hover:border-accent-blue/20 transition-colors duration-150">
+                <div class="p-4">
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <span class="badge badge-primary">{{ material.subject.name }}</span>
+                        <span class="text-xs text-surface-500">{{ material.file_extension.upper() }}</span>
+                    </div>
+                    <h3 class="font-medium text-white mb-1 truncate">{{ material.title }}</h3>
+                    <p class="text-sm text-surface-500 mb-3 line-clamp-2">{{ material.description or 'No description' }}</p>
+                    <div class="flex items-center gap-4 text-xs text-surface-500">
+                        <span class="flex items-center gap-1">by {{ material.author.name }}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i>{{ material.views }}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3"></i>{{ material.downloads }}</span>
+                        {% if material.average_rating > 0 %}
+                        <span class="flex items-center gap-1 text-accent-orange"><i data-lucide="star" class="w-3 h-3 fill-current"></i>{{ material.average_rating }} ({{ material.rating_count }})</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if materials.pages > 1 %}
+        <div class="flex items-center justify-center gap-2">
+            {% if materials.has_prev %}
+            <a href="{{ url_for('subjects.materials', slug=subject.slug, page=materials.prev_num, sort=sort, type=file_type) }}" class="btn-outline btn-sm">Previous</a>
+            {% endif %}
+            <span class="text-sm text-surface-500 px-4">Page {{ materials.page }} of {{ materials.pages }}</span>
+            {% if materials.has_next %}
+            <a href="{{ url_for('subjects.materials', slug=subject.slug, page=materials.next_num, sort=sort, type=file_type) }}" class="btn-primary btn-sm">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="card">
+            <div class="empty-state">
+                <i data-lucide="file-text" class="empty-state-icon"></i>
+                <h4 class="empty-state-title">No materials yet</h4>
+                <p class="empty-state-description">Be the first to upload study materials for this subject!</p>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('materials.upload') }}?subject={{ subject.id }}" class="btn-primary mt-4">Upload Material</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-8 animate-slide-up">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('subjects.materials', slug=subject.slug) }}" class="flex flex-col sm:flex-row gap-4">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-500"></i>
+                    <input type="text" name="search" placeholder="Search materials..." class="input pl-10" value="{{ search }}">
+                </div>
+                <select name="sort" class="input w-full sm:w-40">
+                    <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Recent</option>
+                    <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Popular</option>
+                    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                </select>
+                <select name="type" class="input w-full sm:w-32">
+                    <option value="">All Types</option>
+                    {% for ft, count in file_types %}
+                    <option value="{{ ft }}" {% if file_type == ft %}selected{% endif %}>{{ ft.upper() }} ({{ count }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-primary whitespace-nowrap">Filter</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

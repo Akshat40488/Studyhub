@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4">
+    <div class="text-center max-w-md">
+        <div class="w-24 h-24 rounded-full bg-error-50 mx-auto mb-6 flex items-center justify-center">
+            <i data-lucide="server" class="w-12 h-12 text-error-500"></i>
+        </div>
+        <h1 class="text-4xl font-bold text-secondary-900 mb-2">500</h1>
+        <h2 class="text-xl text-secondary-600 mb-4">Server Error</h2>
+        <p class="text-secondary-500 mb-8">Something went wrong on our end. We've been notified and are working to fix it. Please try again later.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="{{ url_for('index') }}" class="btn-primary">
+                <i data-lucide="home" class="w-4 h-4"></i>
+                Go Home
+            </a>
+            <button onclick="location.reload()" class="btn-outline">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Try Again
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

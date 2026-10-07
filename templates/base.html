@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="StudyHub - Collaborative Learning Platform for Students">
+
+    <title>{% block title %}StudyHub - Collaborative Learning Platform{% endblock %}</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        },
+
+                        secondary: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b'
+                        },
+
+                        success: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d'
+                        },
+
+                        warning: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309'
+                        },
+
+                        error: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c'
+                        },
+
+                        purple: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            500: '#a855f7',
+                            600: '#9333ea'
+                        },
+
+                        pink: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            500: '#ec4899',
+                            600: '#db2777'
+                        }
+                    },
+
+                    fontFamily: {
+                        sans: [
+                            'Inter',
+                            'system-ui',
+                            '-apple-system',
+                            'BlinkMacSystemFont',
+                            'Segoe UI',
+                            'sans-serif'
+                        ]
+                    },
+
+                    boxShadow: {
+                        soft: '0 10px 35px rgba(0,0,0,.06)',
+                        card: '0 8px 30px rgba(0,0,0,.05)',
+                        dock: '0 18px 55px rgba(0,0,0,.14)'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+
+    <style>
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            color: #18181b;
+
+            background:
+                radial-gradient(circle at 10% 0%,
+                    rgba(59, 130, 246, .07),
+                    transparent 32%),
+                radial-gradient(circle at 90% 10%,
+                    rgba(168, 85, 247, .06),
+                    transparent 30%),
+                #f5f5f7;
+        }
+
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+
+        /* =========================================================
+           COMMON PAGE STRUCTURE
+        ========================================================= */
+
+        #main-content {
+            min-height: 100vh;
+
+            /*
+             * Extra space for floating glass dock.
+             * Prevents last content from hiding behind it.
+             */
+            padding-bottom: 125px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-shell {
+            width: 100%;
+            max-width: 1280px;
+
+            margin: 0 auto;
+
+            padding:
+                32px 24px 80px;
+        }
+
+
+        /* =========================================================
+           COMMON CARDS
+        ========================================================= */
+
+        .card {
+            background: rgba(255, 255, 255, .92);
+
+            border: 1px solid rgba(0, 0, 0, .055);
+
+            border-radius: 22px;
+
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, .045);
+
+            overflow: hidden;
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease,
+                border-color .2s ease;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+
+            background: rgba(250, 250, 252, .75);
+
+            border-bottom: 1px solid rgba(0, 0, 0, .055);
+        }
+
+        .card-footer {
+            padding: 18px 24px;
+
+            background: rgba(250, 250, 252, .72);
+
+            border-top: 1px solid rgba(0, 0, 0, .055);
+        }
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, .14);
+
+            box-shadow:
+                0 14px 40px rgba(0, 0, 0, .065);
+        }
+
+
+        /* =========================================================
+           PAGE HEADER
+        ========================================================= */
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            margin: 0;
+
+            font-size: clamp(1.8rem, 4vw, 2.45rem);
+
+            line-height: 1.15;
+
+            font-weight: 800;
+
+            letter-spacing: -.035em;
+
+            color: #18181b;
+        }
+
+        .page-subtitle {
+            margin-top: 9px;
+
+            max-width: 720px;
+
+            color: #71717a;
+
+            font-size: .95rem;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+
+        .btn-primary,
+        .btn-outline,
+        .btn-danger,
+        .btn-sm,
+        .btn-lg {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            border-radius: 12px;
+
+            font-weight: 600;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition:
+                transform .16s ease,
+                background .16s ease,
+                border-color .16s ease,
+                box-shadow .16s ease,
+                color .16s ease;
+        }
+
+        .btn-primary {
+            padding: 10px 16px;
+
+            color: white;
+
+            background: #2563eb;
+
+            border: 1px solid #2563eb;
+
+            box-shadow:
+                0 5px 14px rgba(37, 99, 235, .18);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+
+            border-color: #1d4ed8;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, .22);
+        }
+
+        .btn-outline {
+            padding: 10px 16px;
+
+            color: #3f3f46;
+
+            background: rgba(255, 255, 255, .9);
+
+            border: 1px solid #e4e4e7;
+        }
+
+        .btn-outline:hover {
+            background: #fafafa;
+
+            border-color: #cbd5e1;
+
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            padding: 10px 16px;
+
+            color: #dc2626;
+
+            background: #fff;
+
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover {
+            background: #fef2f2;
+        }
+
+        .btn-sm {
+            padding: 7px 11px;
+
+            font-size: .82rem;
+        }
+
+        .btn-lg {
+            padding: 12px 19px;
+
+            font-size: .95rem;
+        }
+
+
+        /* =========================================================
+           FORM ELEMENTS
+        ========================================================= */
+
+        .label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #3f3f46;
+
+            font-size: .86rem;
+
+            font-weight: 600;
+        }
+
+        .input {
+            width: 100%;
+
+            min-height: 44px;
+
+            padding: 10px 13px;
+
+            color: #18181b;
+
+            background: rgba(255, 255, 255, .96);
+
+            border: 1px solid #e4e4e7;
+
+            border-radius: 12px;
+
+            outline: none;
+
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease,
+                background .15s ease;
+        }
+
+        .input::placeholder {
+            color: #a1a1aa;
+        }
+
+        .input:hover {
+            border-color: #d4d4d8;
+        }
+
+        .input:focus {
+            border-color: #60a5fa;
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px rgba(59, 130, 246, .10);
+        }
+
+
+        /* =========================================================
+           BADGES
+        ========================================================= */
+
+        .badge {
+            display: inline-flex;
+
+            align-items: center;
+            gap: 5px;
+
+            padding: 4px 9px;
+
+            border-radius: 999px;
+
+            font-size: .72rem;
+
+            line-height: 1.2;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .badge-primary {
+            color: #1d4ed8;
+
+            background: #eff6ff;
+        }
+
+        .badge-success {
+            color: #15803d;
+
+            background: #f0fdf4;
+        }
+
+        .badge-warning {
+            color: #b45309;
+
+            background: #fffbeb;
+        }
+
+        .badge-error {
+            color: #b91c1c;
+
+            background: #fef2f2;
+        }
+
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
+
+        .empty-state {
+            padding: 60px 24px;
+
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            width: 44px;
+            height: 44px;
+
+            margin: 0 auto 14px;
+
+            color: #a1a1aa;
+        }
+
+        .empty-state-title {
+            margin: 0;
+
+            color: #18181b;
+
+            font-size: 1rem;
+
+            font-weight: 700;
+        }
+
+        .empty-state-description {
+            max-width: 460px;
+
+            margin: 7px auto 0;
+
+            color: #71717a;
+
+            font-size: .88rem;
+
+            line-height: 1.55;
+        }
+
+
+        /* =========================================================
+           STAT CARDS
+        ========================================================= */
+
+        .stat-card {
+            background: rgba(255, 255, 255, .94);
+
+            border: 1px solid rgba(0, 0, 0, .055);
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 8px 26px rgba(0, 0, 0, .045);
+
+            padding: 22px;
+        }
+
+
+        /* =========================================================
+           FLOATING GLASS DOCK
+        ========================================================= */
+
+        .study-dock {
+            position: fixed;
+
+            left: 50%;
+            bottom: 18px;
+
+            transform: translateX(-50%);
+
+            z-index: 5000;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            max-width: calc(100vw - 24px);
+
+            padding: 7px;
+
+            /*
+             * IMPORTANT:
+             * More transparent than before so the page behind
+             * can be seen through the dock.
+             */
+            background:
+                rgba(255, 255, 255, .48);
+
+            /*
+             * Glass border.
+             */
+            border:
+                1px solid rgba(255, 255, 255, .72);
+
+            border-radius: 24px;
+
+            /*
+             * Layered glass shadow.
+             */
+            box-shadow:
+                0 24px 65px rgba(0, 0, 0, .12),
+                0 8px 24px rgba(0, 0, 0, .06),
+                inset 0 1px 0 rgba(255, 255, 255, .75);
+
+            /*
+             * This is what makes the LIVE background
+             * behind the dock visible but blurred.
+             */
+            backdrop-filter:
+                blur(24px) saturate(155%);
+
+            -webkit-backdrop-filter:
+                blur(24px) saturate(155%);
+
+            /*
+             * Slight isolation prevents strange blending
+             * with page elements.
+             */
+            isolation: isolate;
+
+            animation:
+                dockIn .5s cubic-bezier(.16, 1, .3, 1);
+
+            transition:
+                background .25s ease,
+                box-shadow .25s ease,
+                border-color .25s ease;
+        }
+
+
+        /*
+         * Soft glass highlight across the top.
+         */
+        .study-dock::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 8%;
+
+            width: 84%;
+            height: 1px;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, .95),
+                    transparent);
+
+            pointer-events: none;
+        }
+
+
+        /*
+         * Very subtle bottom reflection.
+         */
+        .study-dock::after {
+            content: "";
+
+            position: absolute;
+
+            inset: auto 15% -2px 15%;
+
+            height: 7px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255, 255, 255, .20);
+
+            filter: blur(7px);
+
+            pointer-events: none;
+
+            z-index: -1;
+        }
+
+
+        /* =========================================================
+           DOCK ITEMS
+        ========================================================= */
+
+        .dock-item {
+            position: relative;
+
+            width: 55px;
+            height: 50px;
+
+            flex-shrink: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 3px;
+
+            padding: 0;
+
+            border: 0;
+
+            border-radius: 16px;
+
+            color: #52525b;
+
+            background: transparent;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s cubic-bezier(.16, 1, .3, 1),
+                background .2s ease,
+                color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .dock-item i {
+            width: 19px;
+            height: 19px;
+
+            stroke-width: 2;
+        }
+
+        .dock-item span {
+            font-size: 7px;
+
+            line-height: 1;
+
+            font-weight: 700;
+
+            letter-spacing: -.02em;
+
+            opacity: .82;
+        }
+
+
+        /*
+         * Hover = subtle glass bubble.
+         */
+        .dock-item:hover {
+            color: #2563eb;
+
+            background:
+                rgba(255, 255, 255, .40);
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .55),
+                0 5px 14px rgba(0, 0, 0, .035);
+
+            transform:
+                translateY(-4px) scale(1.02);
+        }
+
+
+        /*
+         * Active item = blue glass pill.
+         */
+        .dock-item.active {
+            color: #2563eb;
+
+            background:
+                linear-gradient(145deg,
+                    rgba(255, 255, 255, .62),
+                    rgba(219, 234, 254, .48));
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .80),
+                0 5px 16px rgba(37, 99, 235, .08);
+        }
+
+
+        /*
+         * Small active indicator.
+         */
+        .dock-item.active::after {
+            content: "";
+
+            position: absolute;
+
+            bottom: 3px;
+            left: 50%;
+
+            width: 4px;
+            height: 4px;
+
+            transform:
+                translateX(-50%);
+
+            border-radius: 50%;
+
+            background: #2563eb;
+
+            box-shadow:
+                0 0 8px rgba(37, 99, 235, .45);
+        }
+
+
+        /* =========================================================
+           DOCK DIVIDER
+        ========================================================= */
+
+        .dock-divider {
+            width: 1px;
+            height: 30px;
+
+            margin: 0 3px;
+
+            background:
+                rgba(0, 0, 0, .09);
+
+            flex-shrink: 0;
+        }
+
+
+        /* =========================================================
+           DOCK USER
+        ========================================================= */
+
+        .dock-user {
+            outline: none;
+        }
+
+        .dock-avatar {
+            width: 21px;
+            height: 21px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            border:
+                1.5px solid rgba(255, 255, 255, .80);
+
+            box-shadow:
+                0 2px 7px rgba(0, 0, 0, .10);
+        }
+
+
+        /* =========================================================
+           ACCOUNT MENU
+        ========================================================= */
+
+        .dock-user-menu {
+            position: fixed;
+
+            left: 50%;
+            bottom: 86px;
+
+            width: 285px;
+
+            max-height:
+                calc(100vh - 120px);
+
+            overflow-y: auto;
+
+            padding: 9px;
+
+            border-radius: 19px;
+
+            background:
+                rgba(255, 255, 255, .90);
+
+            border:
+                1px solid rgba(255, 255, 255, .75);
+
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, .15),
+                0 8px 22px rgba(0, 0, 0, .06);
+
+            backdrop-filter:
+                blur(28px) saturate(160%);
+
+            -webkit-backdrop-filter:
+                blur(28px) saturate(160%);
+
+            z-index: 6000;
+
+            opacity: 0;
+            visibility: hidden;
+
+            pointer-events: none;
+
+            transform:
+                translateX(-50%) translateY(10px) scale(.97);
+
+            transform-origin: bottom center;
+
+            transition:
+                opacity .18s ease,
+                transform .2s cubic-bezier(.16, 1, .3, 1),
+                visibility .18s ease;
+        }
+
+        .dock-user-menu.show {
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+            transform:
+                translateX(-50%) translateY(0) scale(1);
+        }
+
+        .user-menu-header {
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            padding: 12px;
+
+            margin-bottom: 7px;
+
+            border-radius: 14px;
+
+            background:
+                rgba(244, 244, 247, .78);
+
+            border:
+                1px solid rgba(0, 0, 0, .035);
+        }
+
+        .user-menu-header img {
+            width: 38px;
+            height: 38px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+        }
+
+        .user-menu-name {
+            color: #18181b;
+
+            font-size: .84rem;
+
+            font-weight: 700;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+        .user-menu-email {
+            margin-top: 2px;
+
+            color: #71717a;
+
+            font-size: .68rem;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+        .user-menu-item {
+            width: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            min-height: 42px;
+
+            padding: 9px 11px;
+
+            border-radius: 11px;
+
+            color: #3f3f46;
+
+            background: transparent;
+
+            text-decoration: none;
+
+            font-size: .82rem;
+
+            font-weight: 600;
+
+            transition:
+                background .15s ease,
+                color .15s ease,
+                transform .15s ease;
+        }
+
+        .user-menu-item:hover {
+            color: #18181b;
+
+            background: rgba(244, 244, 247, .80);
+
+            transform: translateX(2px);
+        }
+
+        .user-menu-item i {
+            width: 17px;
+            height: 17px;
+
+            flex-shrink: 0;
+        }
+
+        .user-dropdown-divider {
+            height: 1px;
+
+            margin: 7px 4px;
+
+            background: #e4e4e7;
+        }
+
+        .user-dropdown-item {
+            width: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            min-height: 42px;
+
+            padding: 9px 11px;
+
+            border: 0;
+
+            border-radius: 11px;
+
+            background: transparent;
+
+            color: #3f3f46;
+
+            cursor: pointer;
+
+            font-size: .82rem;
+
+            font-weight: 600;
+
+            text-align: left;
+
+            transition:
+                background .15s ease,
+                color .15s ease;
+        }
+
+        .user-dropdown-item:hover {
+            background: #fef2f2;
+        }
+
+        .user-dropdown-item i {
+            width: 17px;
+            height: 17px;
+        }
+
+        .user-dropdown-logout {
+            color: #dc2626;
+        }
+
+
+        /* =========================================================
+           NOTIFICATION DROPDOWN
+        ========================================================= */
+
+        .notification-dropdown {
+            position: fixed;
+
+            top: 72px;
+            right: 22px;
+
+            width: 350px;
+
+            max-width:
+                calc(100vw - 24px);
+
+            max-height:
+                calc(100vh - 100px);
+
+            overflow-y: auto;
+
+            z-index: 5500;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            pointer-events: none;
+
+            transform:
+                translateY(-8px) scale(.97);
+
+            border-radius: 19px;
+
+            background:
+                rgba(255, 255, 255, .90);
+
+            border:
+                1px solid rgba(255, 255, 255, .75);
+
+            box-shadow:
+                0 24px 65px rgba(0, 0, 0, .14);
+
+            backdrop-filter:
+                blur(26px) saturate(160%);
+
+            -webkit-backdrop-filter:
+                blur(26px) saturate(160%);
+
+            transition:
+                opacity .18s ease,
+                transform .2s ease,
+                visibility .18s ease;
+        }
+
+        .notification-dropdown.show {
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+            transform:
+                translateY(0) scale(1);
+        }
+
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
+
+        #toast-container {
+            z-index: 7000;
+        }
+
+        .toast {
+            animation:
+                slideUp .25s ease forwards;
+        }
+
+
+        /* =========================================================
+           SCROLLBAR
+        ========================================================= */
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d8;
+
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1aa;
+        }
+
+
+        /* =========================================================
+           ANIMATIONS
+        ========================================================= */
+
+        @keyframes dockIn {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    translateX(-50%) translateY(20px) scale(.93);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+        @keyframes slideOut {
+
+            from {
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+
+            to {
+                opacity: 0;
+
+                transform:
+                    translateY(10px);
+            }
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 700px) {
+
+            #main-content {
+                padding-bottom: 95px;
+            }
+
+            .page-shell {
+                padding:
+                    24px 14px 70px;
+            }
+
+            .page-header {
+                margin-bottom: 22px;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .page-subtitle {
+                font-size: .86rem;
+            }
+
+            .card {
+                border-radius: 18px;
+            }
+
+            .card-body {
+                padding: 18px;
+            }
+
+            .card-header {
+                padding: 17px 18px;
+            }
+
+            .card-footer {
+                padding: 16px 18px;
+            }
+
+
+            /* ---------------------------------------------
+               MOBILE GLASS DOCK
+            --------------------------------------------- */
+
+            .study-dock {
+                left: 50%;
+
+                bottom: 9px;
+
+                padding: 6px;
+
+                gap: 2px;
+
+                border-radius: 21px;
+
+                max-width:
+                    calc(100vw - 12px);
+
+                /*
+                 * Slightly more transparent on mobile.
+                 */
+                background:
+                    rgba(255, 255, 255, .44);
+
+                backdrop-filter:
+                    blur(22px) saturate(155%);
+
+                -webkit-backdrop-filter:
+                    blur(22px) saturate(155%);
+            }
+
+            .dock-item {
+                width: 45px;
+                height: 44px;
+
+                border-radius: 14px;
+            }
+
+            .dock-item span {
+                display: none;
+            }
+
+            .dock-item i {
+                width: 20px;
+                height: 20px;
+            }
+
+            .dock-divider {
+                height: 26px;
+
+                margin: 0 1px;
+            }
+
+            .dock-user-menu {
+                bottom: 68px;
+
+                width:
+                    min(285px, calc(100vw - 24px));
+
+                max-height:
+                    calc(100vh - 90px);
+            }
+
+            .notification-dropdown {
+                top: 62px;
+
+                left: 12px;
+                right: 12px;
+
+                width: auto;
+
+                max-width: none;
+            }
+
+            .btn-primary,
+            .btn-outline,
+            .btn-danger {
+                min-height: 42px;
+            }
+        }
+
+
+        /* =========================================================
+           ACCESSIBILITY
+        ========================================================= */
+
+        :focus-visible {
+            outline:
+                3px solid rgba(59, 130, 246, .25);
+
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+
+                animation-iteration-count: 1 !important;
+
+                transition-duration: .01ms !important;
+
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================================================
+         FLOATING GLASS DOCK
+    ========================================================== -->
+
+    {% if current_user.is_authenticated %}
+
+    <nav id="study-dock" class="study-dock" aria-label="Main navigation">
+
+        <a href="{{ url_for('dashboard.index') }}" class="dock-item" title="Dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Home</span>
+        </a>
+
+
+        <a href="{{ url_for('subjects.index') }}" class="dock-item" title="Subjects">
+            <i data-lucide="book-open"></i>
+            <span>Subjects</span>
+        </a>
+
+
+        <a href="{{ url_for('materials.upload') }}" class="dock-item" title="Materials">
+            <i data-lucide="files"></i>
+            <span>Materials</span>
+        </a>
+
+
+        <a href="{{ url_for('doubts.index') }}" class="dock-item" title="Doubts">
+            <i data-lucide="help-circle"></i>
+            <span>Doubts</span>
+        </a>
+
+
+        <a href="{{ url_for('discussions.index') }}" class="dock-item" title="Discussions">
+            <i data-lucide="message-square"></i>
+            <span>Discuss</span>
+        </a>
+
+
+        <a href="{{ url_for('groups.index') }}" class="dock-item" title="Study Groups">
+            <i data-lucide="users"></i>
+            <span>Groups</span>
+        </a>
+
+
+        <a href="{{ url_for('quizzes.index') }}" class="dock-item" title="Quizzes">
+            <i data-lucide="clipboard-check"></i>
+            <span>Quizzes</span>
+        </a>
+
+
+        <div class="dock-divider"></div>
+
+
+        <button id="user-menu-btn" type="button" class="dock-item dock-user" title="Account"
+            aria-label="Open account menu" aria-expanded="false">
+
+            <img class="dock-avatar" src="{{ url_for('static', filename='images/' + current_user.avatar) }}" alt=""
+                onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.name }}&background=0071e3&color=fff&size=40'">
+
+            <span>Account</span>
+
+        </button>
+
+    </nav>
+
+
+    <!-- =========================================================
+         ACCOUNT MENU
+    ========================================================== -->
+
+    <div id="user-menu" class="dock-user-menu" role="menu">
+
+        <div class="user-menu-header">
+
+            <img src="{{ url_for('static', filename='images/' + current_user.avatar) }}" alt=""
+                onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.name }}&background=0071e3&color=fff&size=40'">
+
+            <div style="min-width:0">
+
+                <div class="user-menu-name">
+                    {{ current_user.name }}
+                </div>
+
+                <div class="user-menu-email">
+                    {{ current_user.email }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <a href="{{ url_for('auth.profile') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="user"></i>
+            <span>Profile</span>
+        </a>
+
+
+        <a href="{{ url_for('progress.index') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="trending-up"></i>
+            <span>Progress</span>
+        </a>
+
+
+        <a href="{{ url_for('auth.change_password') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="lock"></i>
+            <span>Security</span>
+        </a>
+
+
+        <div class="user-dropdown-divider"></div>
+
+
+        <a href="{{ url_for('groups.my_groups') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="users"></i>
+            <span>My Groups</span>
+        </a>
+
+
+        <a href="{{ url_for('doubts.my_doubts') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="help-circle"></i>
+            <span>My Doubts</span>
+        </a>
+
+
+        <a href="{{ url_for('discussions.my_discussions') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="message-square"></i>
+            <span>My Discussions</span>
+        </a>
+
+
+        <a href="{{ url_for('quizzes.my_attempts') }}" class="user-menu-item" role="menuitem">
+            <i data-lucide="clipboard-check"></i>
+            <span>Quiz Attempts</span>
+        </a>
+
+
+        <div class="user-dropdown-divider"></div>
+
+
+        <form action="{{ url_for('auth.logout') }}" method="POST" style="margin:0;">
+            <button type="submit" class="user-dropdown-item user-dropdown-logout">
+                <i data-lucide="log-out"></i>
+                <span>Logout</span>
+            </button>
+        </form>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- =========================================================
+         PAGE NAVBAR
+    ========================================================== -->
+
+    {% block navbar %}{% endblock %}
+
+
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
+
+    <main id="main-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+        <div id="toast-container" class="fixed top-4 right-4 space-y-2">
+
+            {% for category, message in messages %}
+
+            <div class="toast toast-{{ category }} max-w-sm w-full bg-white rounded-2xl shadow-xl border border-black/5 p-4 flex items-start gap-3"
+                data-category="{{ category }}">
+
+                {% if category == 'success' %}
+
+                <div class="flex-shrink-0 text-green-600">
+                    <i data-lucide="check-circle"></i>
+                </div>
+
+                {% elif category == 'error' %}
+
+                <div class="flex-shrink-0 text-red-600">
+                    <i data-lucide="alert-circle"></i>
+                </div>
+
+                {% elif category == 'warning' %}
+
+                <div class="flex-shrink-0 text-orange-600">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+
+                {% else %}
+
+                <div class="flex-shrink-0 text-blue-600">
+                    <i data-lucide="info"></i>
+                </div>
+
+                {% endif %}
+
+
+                <div class="flex-1 min-w-0">
+
+                    <p class="text-sm font-medium text-neutral-900">
+                        {{ message }}
+                    </p>
+
+                </div>
+
+
+                <button type="button" onclick="this.parentElement.remove()"
+                    class="flex-shrink-0 text-neutral-400 hover:text-neutral-700">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+        {% endwith %}
+
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+
+    {% block footer %}{% endblock %}
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
+
+                /* ---------------------------------------------
+                   LUCIDE
+                --------------------------------------------- */
+
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+
+
+                /* ---------------------------------------------
+                   TOAST AUTO DISMISS
+                --------------------------------------------- */
+
+                document
+                    .querySelectorAll('.toast')
+                    .forEach(function (toast) {
+
+                        setTimeout(function () {
+
+                            toast.style.animation =
+                                'slideOut .3s ease forwards';
+
+                            setTimeout(
+                                () => toast.remove(),
+                                300
+                            );
+
+                        }, 5000);
+
+                    });
+
+
+                /* ---------------------------------------------
+                   USER MENU
+                --------------------------------------------- */
+
+                const userMenuBtn =
+                    document.getElementById('user-menu-btn');
+
+                const userMenu =
+                    document.getElementById('user-menu');
+
+
+                function closeUserMenu() {
+
+                    userMenu?.classList.remove('show');
+
+                    userMenuBtn?.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+                }
+
+
+                function openUserMenu() {
+
+                    userMenu?.classList.add('show');
+
+                    userMenuBtn?.setAttribute(
+                        'aria-expanded',
+                        'true'
+                    );
+                }
+
+
+                userMenuBtn?.addEventListener(
+                    'click',
+                    function (event) {
+
+                        event.stopPropagation();
+
+                        if (
+                            userMenu?.classList.contains('show')
+                        ) {
+
+                            closeUserMenu();
+
+                        } else {
+
+                            openUserMenu();
+
+                        }
+
+                    }
+                );
+
+
+                userMenu?.addEventListener(
+                    'click',
+                    function (event) {
+
+                        event.stopPropagation();
+
+                    }
+                );
+
+
+                /* ---------------------------------------------
+                   CLOSE MENU
+                --------------------------------------------- */
+
+                document.addEventListener(
+                    'click',
+                    function () {
+
+                        closeUserMenu();
+
+                    }
+                );
+
+
+                document.addEventListener(
+                    'keydown',
+                    function (event) {
+
+                        if (event.key === 'Escape') {
+
+                            closeUserMenu();
+
+                        }
+
+                    }
+                );
+
+
+                /* ---------------------------------------------
+                   ACTIVE DOCK ITEM
+                --------------------------------------------- */
+
+                const currentPath =
+                    window.location.pathname;
+
+
+                document
+                    .querySelectorAll('.dock-item[href]')
+                    .forEach(function (link) {
+
+                        const href =
+                            link.getAttribute('href');
+
+
+                        if (
+                            href &&
+                            href !== '#' &&
+                            (
+                                currentPath === href ||
+                                (
+                                    href !== '/' &&
+                                    currentPath.startsWith(href)
+                                )
+                            )
+                        ) {
+
+                            link.classList.add('active');
+
+                        }
+
+                    });
+
+
+                /* ---------------------------------------------
+                   KEYBOARD SEARCH
+                --------------------------------------------- */
+
+                document.addEventListener(
+                    'keydown',
+                    function (event) {
+
+                        if (
+                            (event.metaKey || event.ctrlKey) &&
+                            event.key.toLowerCase() === 'k'
+                        ) {
+
+                            event.preventDefault();
+
+                            window.location.href =
+                                '{{ url_for("search.index") }}';
+
+                        }
+
+                    }
+                );
+
+
+                /* ---------------------------------------------
+                   NOTIFICATION LINKS
+                --------------------------------------------- */
+
+                document
+                    .querySelectorAll(
+                        '#notifications-list a'
+                    )
+                    .forEach(function (link) {
+
+                        link.addEventListener(
+                            'click',
+                            function () {
+
+                                const notificationId =
+                                    this.dataset.notificationId;
+
+
+                                if (notificationId) {
+
+                                    fetch(
+                                        `/api/notifications/${notificationId}/mark-read`,
+                                        {
+                                            method: 'POST'
+                                        }
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    });
+
+            }
+        );
+
+
+        /* =====================================================
+           MARK ALL NOTIFICATIONS READ
+        ===================================================== */
+
+        async function markAllNotificationsRead() {
+
+            await fetch(
+                '/dashboard/notifications/mark-all-read',
+                {
+                    method: 'POST'
+                }
+            );
+
+
+            document
+                .querySelectorAll(
+                    '#notifications-list .bg-surface-800\\/50'
+                )
+                .forEach(
+                    el => el.classList.remove(
+                        'bg-surface-800/50'
+                    )
+                );
+
+        }
+
+
+        /* =====================================================
+           SHOW TOAST
+        ===================================================== */
+
+        function showToast(
+            message,
+            category = 'info'
+        ) {
+
+            const container =
+                document.getElementById('toast-container')
+                || createToastContainer();
+
+
+            const toast =
+                document.createElement('div');
+
+
+            const icons = {
+
+                success:
+                    '<i data-lucide="check-circle" class="w-5 h-5"></i>',
+
+                error:
+                    '<i data-lucide="alert-circle" class="w-5 h-5"></i>',
+
+                warning:
+                    '<i data-lucide="alert-triangle" class="w-5 h-5"></i>',
+
+                info:
+                    '<i data-lucide="info" class="w-5 h-5"></i>'
+
+            };
+
+
+            const colors = {
+
+                success: 'text-green-600',
+
+                error: 'text-red-600',
+
+                warning: 'text-orange-600',
+
+                info: 'text-blue-600'
+
+            };
+
+
+            toast.className =
+                'toast max-w-sm w-full bg-white rounded-2xl shadow-xl border border-black/5 p-4 flex items-start gap-3';
+
+
+            toast.innerHTML =
+
+                `<div class="flex-shrink-0 ${colors[category]}">
+                    ${icons[category]}
+                </div>` +
+
+                `<div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-neutral-900">
+                        ${message}
+                    </p>
+                </div>` +
+
+                `<button
+                    type="button"
+                    onclick="this.parentElement.remove()"
+                    class="flex-shrink-0 text-neutral-400 hover:text-neutral-700"
+                >
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>`;
+
+
+            container.appendChild(toast);
+
+
+            if (window.lucide) {
+
+                lucide.createIcons();
+
+            }
+
+
+            setTimeout(
+                function () {
+
+                    toast.style.animation =
+                        'slideOut .3s ease forwards';
+
+                    setTimeout(
+                        () => toast.remove(),
+                        300
+                    );
+
+                },
+                5000
+            );
+
+        }
+
+
+        /* =====================================================
+           TOAST CONTAINER
+        ===================================================== */
+
+        function createToastContainer() {
+
+            const container =
+                document.createElement('div');
+
+
+            container.id =
+                'toast-container';
+
+
+            container.className =
+                'fixed top-4 right-4 z-[7000] space-y-2';
+
+
+            document.body.appendChild(container);
+
+
+            return container;
+
+        }
+
+
+        /* =====================================================
+           CONFIRM ACTION
+        ===================================================== */
+
+        function confirmAction(
+            message,
+            callback
+        ) {
+
+            if (confirm(message)) {
+
+                callback();
+
+            }
+
+        }
+
+
+        /* =====================================================
+           API REQUEST
+        ===================================================== */
+
+        async function apiRequest(
+            url,
+            options = {}
+        ) {
+
+            const defaultOptions = {
+
+                headers: {
+
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Requested-With':
+                        'XMLHttpRequest'
+
+                }
+
+            };
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        ...defaultOptions,
+                        ...options
+                    }
+                );
+
+
+            return response.json();
+
+        }
+
+    </script>
+
+
+    {% block extra_scripts %}{% endblock %}
+
+</body>
+
+</html>

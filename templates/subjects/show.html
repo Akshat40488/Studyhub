@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Subject Header -->
+    <div class="mb-8">
+        <nav class="flex items-center gap-2 text-sm text-secondary-500 mb-4" aria-label="Breadcrumb">
+            <a href="{{ url_for('index') }}" class="hover:text-secondary-700">Home</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ url_for('subjects.index') }}" class="hover:text-secondary-700">Subjects</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-secondary-900">{{ subject.name }}</span>
+        </nav>
+        
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background-color: {{ subject.color }}15;">
+                        <i data-lucide="{{ subject.icon }}" class="w-8 h-8" style="color: {{ subject.color }}"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-secondary-900">{{ subject.name }}</h1>
+                        <p class="text-secondary-500">{{ subject.description }}</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-4 text-sm text-secondary-500">
+                    <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-4 h-4"></i>{{ material_count }} materials</span>
+                    <span class="flex items-center gap-1"><i data-lucide="clipboard-check" class="w-4 h-4"></i>{{ quiz_count }} quizzes</span>
+                    <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-4 h-4"></i>{{ doubt_count }} doubts</span>
+                    <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-4 h-4"></i>{{ discussion_count }} discussions</span>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('materials.upload') }}?subject={{ subject.id }}" class="btn-primary">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    Upload Material
+                </a>
+                <a href="{{ url_for('doubts.ask') }}?subject={{ subject.id }}" class="btn-outline">
+                    <i data-lucide="help-circle" class="w-4 h-4"></i>
+                    Ask Doubt
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-primary">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Sign In to Contribute
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Bar (if user has progress) -->
+    {% if user_progress %}
+    <div class="card mb-8">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-secondary-900">Your Progress</h3>
+                <span class="text-lg font-bold" style="color: {{ subject.color }}">{{ user_progress.average_score }}%</span>
+            </div>
+            <div class="h-3 bg-secondary-100 rounded-full overflow-hidden mb-4">
+                <div class="h-full rounded-full transition-all duration-500" style="width: {{ user_progress.average_score }}%; background-color: {{ subject.color }}"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-4 text-center text-sm">
+                <div>
+                    <div class="font-bold text-secondary-900">{{ user_progress.materials_viewed }}</div>
+                    <div class="text-secondary-500">Materials</div>
+                </div>
+                <div>
+                    <div class="font-bold text-secondary-900">{{ user_progress.quizzes_attempted }}</div>
+                    <div class="text-secondary-500">Quizzes</div>
+                </div>
+                <div>
+                    <div class="font-bold text-secondary-900">{{ user_progress.streak_days }}</div>
+                    <div class="text-secondary-500">Streak</div>
+                </div>
+                <div>
+                    <div class="font-bold text-secondary-900">{{ user_progress.study_time }}h</div>
+                    <div class="text-secondary-500">Study Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Study Materials -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-secondary-900">Study Materials</h2>
+                    <a href="{{ url_for('subjects.materials', slug=subject.slug) }}" class="text-sm text-primary-600 hover:text-primary-700">View all</a>
+                </div>
+                {% if materials %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for material in materials %}
+                    <a href="{{ url_for('materials.view', material_id=material.id) }}" class="card hover:border-primary-200 transition-all">
+                        <div class="p-4">
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <span class="file-type-badge">
+                                    <i data-lucide="{{ 'file-text' }}" class="w-3 h-3"></i>
+                                    {{ material.file_extension.upper() }}
+                                </span>
+                                <span class="text-xs text-secondary-400">{{ material.created_at|timeago }}</span>
+                            </div>
+                            <h3 class="font-medium text-secondary-900 mb-1 line-clamp-1">{{ material.title }}</h3>
+                            <p class="text-sm text-secondary-500 mb-3 line-clamp-2">{{ material.description or 'No description' }}</p>
+                            <div class="flex items-center gap-4 text-xs text-secondary-400">
+                                <span class="flex items-center gap-1">by {{ material.author.name }}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i>{{ material.views }}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3"></i>{{ material.downloads }}</span>
+                                {% if material.average_rating > 0 %}
+                                <span class="flex items-center gap-1 text-warning-500"><i data-lucide="star" class="w-3 h-3 fill-current"></i>{{ material.average_rating }} ({{ material.rating_count }})</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card">
+                    <div class="empty-state py-8">
+                        <i data-lucide="file-text" class="empty-state-icon"></i>
+                        <h4 class="empty-state-title">No materials yet</h4>
+                        <p class="empty-state-description">Be the first to upload study materials for this subject!</p>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('materials.upload') }}?subject={{ subject.id }}" class="btn-primary mt-4">Upload Material</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Quizzes -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-secondary-900">Quizzes</h2>
+                    <a href="{{ url_for('subjects.quizzes', slug=subject.slug) }}" class="text-sm text-primary-600 hover:text-primary-700">View all</a>
+                </div>
+                {% if quizzes %}
+                <div class="space-y-3">
+                    {% for quiz in quizzes %}
+                    <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-medium text-secondary-900">{{ quiz.title }}</h3>
+                                <p class="text-sm text-secondary-500 mt-1">{{ quiz.description or 'No description' }}</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3 text-sm text-secondary-500">
+                                <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-4 h-4"></i>{{ quiz.question_count }} questions</span>
+                                <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i>{{ quiz.time_limit }} min</span>
+                                <span class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i>{{ quiz.attempt_count }} attempts</span>
+                                <span class="badge badge-success">{{ quiz.passing_score }}% to pass</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-secondary-400 ml-auto"></i>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card">
+                    <div class="empty-state py-8">
+                        <i data-lucide="clipboard-check" class="empty-state-icon"></i>
+                        <h4 class="empty-state-title">No quizzes available</h4>
+                        <p class="empty-state-description">Check back later for new quizzes in this subject.</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Doubts -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-secondary-900">Recent Doubts</h2>
+                    <a href="{{ url_for('subjects.doubts', slug=subject.slug) }}" class="text-sm text-primary-600 hover:text-primary-700">View all</a>
+                </div>
+                {% if doubts %}
+                <div class="space-y-3">
+                    {% for doubt in doubts %}
+                    <a href="{{ url_for('doubts.view', doubt_id=doubt.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    {% if doubt.is_resolved %}
+                                    <span class="badge badge-success"><i data-lucide="check-circle" class="w-3 h-3"></i> Resolved</span>
+                                    {% else %}
+                                    <span class="badge badge-warning"><i data-lucide="help-circle" class="w-3 h-3"></i> Open</span>
+                                    {% endif %}
+                                </div>
+                                <h3 class="font-medium text-secondary-900">{{ doubt.title }}</h3>
+                                <p class="text-sm text-secondary-500 mt-1">{{ doubt.content | truncate(100) }}</p>
+                                <p class="text-xs text-secondary-400 mt-2">by {{ doubt.author.name }} • {{ doubt.created_at|timeago }} • {{ doubt.answers.count() }} answers • {{ doubt.views }} views</p>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-secondary-400 flex-shrink-0"></i>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card">
+                    <div class="empty-state py-8">
+                        <i data-lucide="help-circle" class="empty-state-icon"></i>
+                        <h4 class="empty-state-title">No doubts posted yet</h4>
+                        <p class="empty-state-description">Be the first to ask a question in this subject!</p>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('doubts.ask') }}?subject={{ subject.id }}" class="btn-primary mt-4">Ask a Doubt</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Discussions -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-secondary-900">Recent Discussions</h2>
+                    <a href="{{ url_for('subjects.discussions', slug=subject.slug) }}" class="text-sm text-primary-600 hover:text-primary-700">View all</a>
+                </div>
+                {% if discussions %}
+                <div class="space-y-3">
+                    {% for discussion in discussions %}
+                    <a href="{{ url_for('discussions.view', discussion_id=discussion.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    {% if discussion.is_pinned %}
+                                    <span class="badge badge-warning"><i data-lucide="pin" class="w-3 h-3"></i> Pinned</span>
+                                    {% endif %}
+                                </div>
+                                <h3 class="font-medium text-secondary-900">{{ discussion.title }}</h3>
+                                <p class="text-sm text-secondary-500 mt-1">{{ discussion.content | truncate(100) }}</p>
+                                <p class="text-xs text-secondary-400 mt-2">by {{ discussion.author.name }} • {{ discussion.created_at|timeago }} • {{ discussion.comment_count }} comments</p>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-secondary-400 flex-shrink-0"></i>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card">
+                    <div class="empty-state py-8">
+                        <i data-lucide="message-square" class="empty-state-icon"></i>
+                        <h4 class="empty-state-title">No discussions yet</h4>
+                        <p class="empty-state-description">Start a discussion to engage with other students!</p>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('discussions.create') }}?subject={{ subject.id }}" class="btn-primary mt-4">Create Discussion</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Related Groups -->
+            {% set groups = StudyGroup.query.filter_by(subject_id=subject.id).limit(5).all() %}
+            {% if groups %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-secondary-900">Study Groups</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="divide-y divide-secondary-100">
+                        {% for group in groups %}
+                        <a href="{{ url_for('groups.view', group_id=group.id) }}" class="flex items-center gap-3 p-4 hover:bg-secondary-50 transition-colors">
+                            <div class="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+                                <i data-lucide="users" class="w-5 h-5 text-primary-600"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-secondary-900 truncate">{{ group.name }}</h4>
+                                <p class="text-sm text-secondary-500">{{ group.member_count }}/{{ group.max_members }} members</p>
+                            </div>
+                            {% if group.is_private %}
+                            <span class="badge badge-secondary"><i data-lucide="lock" class="w-3 h-3"></i> Private</span>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <div class="p-4 border-t border-secondary-100">
+                        <a href="{{ url_for('groups.index') }}?subject={{ subject.id }}" class="btn-outline btn-sm w-full">View All Groups</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Quick Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-secondary-900">Subject Stats</h3>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-secondary-600">Total Materials</span>
+                            <span class="font-semibold text-secondary-900">{{ material_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-secondary-600">Total Quizzes</span>
+                            <span class="font-semibold text-secondary-900">{{ quiz_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-secondary-600">Total Doubts</span>
+                            <span class="font-semibold text-secondary-900">{{ doubt_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-secondary-600">Total Discussions</span>
+                            <span class="font-semibold text-secondary-900">{{ discussion_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-secondary-600">Active Groups</span>
+                            <span class="font-semibold text-secondary-900">{{ groups|length if groups else 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

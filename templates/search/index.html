@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Search Header -->
+    <div class="mb-8">
+        <form method="GET" action="{{ url_for('search.index') }}" class="relative">
+            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-secondary-400"></i>
+            <input type="text" name="q" value="{{ query }}" placeholder="Search materials, subjects, doubts, discussions, groups, quizzes..." class="input pl-12 pr-4 py-4 text-lg" autofocus>
+            <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 btn-primary">Search</button>
+        </form>
+        
+        {% if query %}
+        <div class="flex flex-wrap gap-2 mt-4" role="tablist">
+            <button role="tab" class="category-tab {% if category == 'all' %}active{% endif %}" data-category="all" onclick="filterCategory('all')">All</button>
+            <button role="tab" class="category-tab {% if category == 'materials' %}active{% endif %}" data-category="materials" onclick="filterCategory('materials')">Materials</button>
+            <button role="tab" class="category-tab {% if category == 'subjects' %}active{% endif %}" data-category="subjects" onclick="filterCategory('subjects')">Subjects</button>
+            <button role="tab" class="category-tab {% if category == 'doubts' %}active{% endif %}" data-category="doubts" onclick="filterCategory('doubts')">Doubts</button>
+            <button role="tab" class="category-tab {% if category == 'discussions' %}active{% endif %}" data-category="discussions" onclick="filterCategory('discussions')">Discussions</button>
+            <button role="tab" class="category-tab {% if category == 'groups' %}active{% endif %}" data-category="groups" onclick="filterCategory('groups')">Groups</button>
+            <button role="tab" class="category-tab {% if category == 'quizzes' %}active{% endif %}" data-category="quizzes" onclick="filterCategory('quizzes')">Quizzes</button>
+            {% if current_user.is_authenticated %}
+            <button role="tab" class="category-tab {% if category == 'users' %}active{% endif %}" data-category="users" onclick="filterCategory('users')">Users</button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if query %}
+    <div class="mb-4 text-sm text-secondary-500">
+        {% if total_count > 0 %}
+        Found {{ total_count }} result{{ 's' if total_count != 1 else '' }} for "{{ query }}"
+        {% else %}
+        No results found for "{{ query }}"
+        {% endif %}
+    </div>
+    
+    {% if results.materials %}
+    <section class="mb-8" id="results-materials">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="file-text" class="w-5 h-5 text-primary-600"></i>
+            Study Materials ({{ results.materials|length }})
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for material in results.materials %}
+            <a href="{{ url_for('materials.view', material_id=material.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-secondary-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="{{ 'file-text' }}" class="w-5 h-5 text-secondary-500"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-secondary-900 truncate">{{ material.title }}</h3>
+                        <p class="text-xs text-secondary-500">{{ material.subject.name }} • {{ material.views }} views</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if results.subjects %}
+    <section class="mb-8" id="results-subjects">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="book" class="w-5 h-5 text-success-600"></i>
+            Subjects ({{ results.subjects|length }})
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% for subject in results.subjects %}
+            <a href="{{ url_for('subjects.show', slug=subject.slug) }}" class="card p-4 text-center hover:border-primary-200 transition-all">
+                <div class="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center" style="background-color: {{ subject.color }}15;">
+                    <i data-lucide="{{ subject.icon }}" class="w-5 h-5" style="color: {{ subject.color }}"></i>
+                </div>
+                <h3 class="font-medium text-secondary-900 text-sm">{{ subject.name }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if results.doubts %}
+    <section class="mb-8" id="results-doubts">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="help-circle" class="w-5 h-5 text-warning-600"></i>
+            Doubts ({{ results.doubts|length }})
+        </h2>
+        <div class="space-y-3">
+            {% for doubt in results.doubts %}
+            <a href="{{ url_for('doubts.view', doubt_id=doubt.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                <div class="flex items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="badge badge-primary text-xs">{{ doubt.subject.name }}</span>
+                            {% if doubt.is_resolved %}
+                            <span class="badge badge-success text-xs"><i data-lucide="check-circle" class="w-3 h-3"></i> Resolved</span>
+                            {% else %}
+                            <span class="badge badge-warning text-xs"><i data-lucide="help-circle" class="w-3 h-3"></i> Open</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="font-medium text-secondary-900 truncate">{{ doubt.title }}</h3>
+                        <p class="text-sm text-secondary-500 mt-1">{{ doubt.content | truncate(80) }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if results.discussions %}
+    <section class="mb-8" id="results-discussions">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="message-square" class="w-5 h-5 text-purple-600"></i>
+            Discussions ({{ results.discussions|length }})
+        </h2>
+        <div class="space-y-3">
+            {% for discussion in results.discussions %}
+            <a href="{{ url_for('discussions.view', discussion_id=discussion.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                <div class="flex items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="badge badge-primary text-xs">{{ discussion.subject.name }}</span>
+                            {% if discussion.is_pinned %}
+                            <span class="badge badge-warning text-xs"><i data-lucide="pin" class="w-3 h-3"></i> Pinned</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="font-medium text-secondary-900 truncate">{{ discussion.title }}</h3>
+                        <p class="text-sm text-secondary-500 mt-1">{{ discussion.content | truncate(80) }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if results.groups %}
+    <section class="mb-8" id="results-groups">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="users" class="w-5 h-5 text-error-600"></i>
+            Study Groups ({{ results.groups|length }})
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for group in results.groups %}
+            <a href="{{ url_for('groups.view', group_id=group.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="users" class="w-5 h-5 text-primary-600"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="font-medium text-secondary-900 truncate">{{ group.name }}</h3>
+                            {% if group.is_private %}
+                            <span class="badge badge-secondary text-xs"><i data-lucide="lock" class="w-3 h-3"></i> Private</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm text-secondary-500">{{ group.member_count }}/{{ group.max_members }} members</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if results.quizzes %}
+    <section class="mb-8" id="results-quizzes">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="clipboard-check" class="w-5 h-5 text-pink-600"></i>
+            Quizzes ({{ results.quizzes|length }})
+        </h2>
+        <div class="space-y-3">
+            {% for quiz in results.quizzes %}
+            <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}" class="card hover:border-primary-200 transition-all p-4">
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="badge badge-primary text-xs">{{ quiz.subject.name }}</span>
+                        </div>
+                        <h3 class="font-medium text-secondary-900 truncate">{{ quiz.title }}</h3>
+                        <p class="text-sm text-secondary-500 mt-1">{{ quiz.question_count }} questions • {{ quiz.time_limit }} min • {{ quiz.passing_score }}% to pass</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if results.users and current_user.is_authenticated %}
+    <section class="mb-8" id="results-users">
+        <h2 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+            <i data-lucide="user" class="w-5 h-5 text-secondary-600"></i>
+            Users ({{ results.users|length }})
+        </h2>
+        <div class="space-y-3">
+            {% for user in results.users %}
+            <a href="#" class="card hover:border-primary-200 transition-all p-3 flex items-center gap-3">
+                <img src="{{ url_for('static', filename='images/' + user.avatar) }}" alt="" class="w-10 h-10 rounded-full" onerror="this.src='https://ui-avatars.com/api/?name={{ user.name }}&background=3B82F6&color=fff&size=40'">
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-medium text-secondary-900 truncate">{{ user.name }}</h3>
+                    <p class="text-xs text-secondary-500 truncate">{{ user.email }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if total_count == 0 %}
+    <div class="card">
+        <div class="empty-state">
+            <i data-lucide="search" class="empty-state-icon"></i>
+            <h4 class="empty-state-title">No results found</h4>
+            <p class="empty-state-description">Try different keywords or browse our subjects.</p>
+            <a href="{{ url_for('subjects.index') }}" class="btn-primary mt-4">Browse Subjects</a>
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card">
+        <div class="empty-state">
+            <i data-lucide="search" class="empty-state-icon"></i>
+            <h4 class="empty-state-title">Start searching</h4>
+            <p class="empty-state-description">Enter a search term above to find study materials, doubts, discussions, groups, and more.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        
+        // Search input autocomplete
+        const searchInput = document.querySelector('input[name="q"]');
+        let debounceTimer;
+        
+        searchInput?.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const query = this.value.trim();
+                if (query.length >= 2) {
+                    fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            // Could show suggestions dropdown here
+                        });
+                }
+            }, 300);
+        });
+    });
+    
+    function filterCategory(category) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('category', category);
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}

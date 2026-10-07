@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+
+            <div>
+
+                <div class="flex items-center gap-2 mb-3">
+
+                    <span
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-600 text-xs font-semibold">
+
+                        <i data-lucide="messages-square" class="w-3.5 h-3.5"></i>
+
+                        Community
+
+                    </span>
+
+                </div>
+
+
+                <h1 class="page-title">
+                    Discussions
+                </h1>
+
+                <p class="page-subtitle">
+                    Ask questions, share ideas, and learn with fellow students.
+                </p>
+
+            </div>
+
+
+            {% if current_user.is_authenticated %}
+
+            <a href="{{ url_for('discussions.create') }}" class="btn-primary flex-shrink-0">
+
+                <i data-lucide="plus" class="w-4 h-4"></i>
+
+                Start Discussion
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTERS
+    ====================================================== -->
+
+    <div class="card mb-6">
+
+        <div class="card-body">
+
+            <form method="GET" action="{{ url_for('discussions.index') }}" class="space-y-4">
+
+                <!-- Search -->
+
+                <div class="relative">
+
+                    <i data-lucide="search"
+                        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary-400 pointer-events-none"></i>
+
+                    <input type="text" name="search" placeholder="Search discussions..." class="input pl-10"
+                        value="{{ search }}">
+
+                </div>
+
+
+                <!-- Filter Row -->
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+                    <select name="subject_id" class="input">
+
+                        <option value="">
+                            All Subjects
+                        </option>
+
+                        {% for subject in subjects %}
+
+                        <option value="{{ subject.id }}" {% if subject_id==subject.id %}selected{% endif %}>
+                            {{ subject.name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <select name="sort" class="input">
+
+                        <option value="recent" {% if sort=='recent' %}selected{% endif %}>
+                            Most Recent
+                        </option>
+
+                        <option value="popular" {% if sort=='popular' %}selected{% endif %}>
+                            Most Popular
+                        </option>
+
+                    </select>
+
+
+                    <button type="submit" class="btn-primary w-full">
+
+                        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+
+                        Apply Filters
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DISCUSSION LIST
+    ====================================================== -->
+
+    <div class="card overflow-hidden">
+
+
+        {% if discussions.items %}
+
+
+        <!-- List Header -->
+
+        <div class="px-5 py-4 border-b border-secondary-100 bg-secondary-50/50">
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+
+                    <h2 class="font-semibold text-secondary-900">
+                        Community Discussions
+                    </h2>
+
+                    <p class="text-xs text-secondary-500 mt-1">
+                        Join the conversation and help each other learn.
+                    </p>
+
+                </div>
+
+
+                <div class="hidden sm:flex items-center gap-2 text-xs text-secondary-400">
+
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+
+                    <span>
+                        {{ discussions.total }} discussions
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Discussions -->
+
+        <div class="divide-y divide-secondary-100">
+
+            {% for discussion in discussions.items %}
+
+            <a href="{{ url_for('discussions.view', discussion_id=discussion.id) }}"
+                class="group block p-5 hover:bg-secondary-50/70 transition-colors">
+
+                <div class="flex items-start gap-4">
+
+
+                    <!-- Discussion Icon -->
+
+                    <div
+                        class="hidden sm:flex w-11 h-11 rounded-xl bg-primary-50 items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors">
+
+                        <i data-lucide="message-square" class="w-5 h-5 text-primary-600"></i>
+
+                    </div>
+
+
+                    <!-- Main Content -->
+
+                    <div class="flex-1 min-w-0">
+
+
+                        <!-- Badges -->
+
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+
+                            <span class="badge badge-primary">
+                                {{ discussion.subject.name }}
+                            </span>
+
+
+                            {% if discussion.is_pinned %}
+
+                            <span class="badge badge-warning">
+
+                                <i data-lucide="pin" class="w-3 h-3"></i>
+
+                                Pinned
+
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if discussion.is_locked %}
+
+                            <span class="badge badge-secondary">
+
+                                <i data-lucide="lock" class="w-3 h-3"></i>
+
+                                Locked
+
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Title -->
+
+                        <h3
+                            class="font-semibold text-secondary-900 text-base sm:text-lg leading-snug group-hover:text-primary-700 transition-colors">
+
+                            {{ discussion.title }}
+
+                        </h3>
+
+
+                        <!-- Content -->
+
+                        <p class="text-sm text-secondary-500 line-clamp-2 mt-2 leading-relaxed">
+
+                            {{ discussion.content }}
+
+                        </p>
+
+
+                        <!-- Meta -->
+
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-xs text-secondary-400">
+
+
+                            <!-- Author -->
+
+                            <span class="flex items-center gap-1.5">
+
+                                <img src="{{ url_for('static', filename='images/' + discussion.author.avatar) }}" alt=""
+                                    class="w-5 h-5 rounded-full object-cover"
+                                    onerror="this.src='https://ui-avatars.com/api/?name={{ discussion.author.name }}&background=3B82F6&color=fff&size=20'">
+
+                                <span class="font-medium text-secondary-500">
+                                    {{ discussion.author.name }}
+                                </span>
+
+                            </span>
+
+
+                            <!-- Time -->
+
+                            <span class="flex items-center gap-1">
+
+                                <i data-lucide="clock-3" class="w-3.5 h-3.5"></i>
+
+                                {{ discussion.created_at|timeago }}
+
+                            </span>
+
+
+                            <!-- Comments -->
+
+                            <span class="flex items-center gap-1">
+
+                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+
+                                {{ discussion.comment_count }}
+
+                                <span class="hidden sm:inline">
+                                    comments
+                                </span>
+
+                            </span>
+
+
+                            <!-- Views -->
+
+                            <span class="flex items-center gap-1">
+
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+
+                                {{ discussion.views }}
+
+                                <span class="hidden sm:inline">
+                                    views
+                                </span>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Arrow -->
+
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-lg group-hover:bg-white flex-shrink-0 transition-colors">
+
+                        <i data-lucide="chevron-right"
+                            class="w-4 h-4 text-secondary-300 group-hover:text-primary-600 transition-colors"></i>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =================================================
+             PAGINATION
+        ================================================== -->
+
+        {% if discussions.pages > 1 %}
+
+        <div class="card-footer">
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                <div class="text-sm text-secondary-500">
+
+                    Page
+                    <span class="font-semibold text-secondary-700">
+                        {{ discussions.page }}
+                    </span>
+                    of
+                    <span class="font-semibold text-secondary-700">
+                        {{ discussions.pages }}
+                    </span>
+
+                </div>
+
+
+                <div class="flex items-center gap-2">
+
+                    {% if discussions.has_prev %}
+
+                    <a href="{{ url_for('discussions.index', page=discussions.prev_num, subject_id=subject_id, sort=sort, search=search) }}"
+                        class="btn-outline btn-sm">
+
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+
+                        Previous
+
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if discussions.has_next %}
+
+                    <a href="{{ url_for('discussions.index', page=discussions.next_num, subject_id=subject_id, sort=sort, search=search) }}"
+                        class="btn-primary btn-sm">
+
+                        Next
+
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        {% else %}
+
+
+        <!-- =================================================
+             EMPTY STATE
+        ================================================== -->
+
+        <div class="empty-state py-16">
+
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-primary-50 flex items-center justify-center mb-5">
+
+                <i data-lucide="messages-square" class="w-8 h-8 text-primary-600"></i>
+
+            </div>
+
+
+            <h4 class="empty-state-title">
+                No discussions found
+            </h4>
+
+
+            <p class="empty-state-description max-w-md mx-auto">
+
+                {% if search or subject_id %}
+
+                Nothing matched your current filters.
+                Try changing your search or subject.
+
+                {% else %}
+
+                Be the first to start a discussion
+                and get the conversation going.
+
+                {% endif %}
+
+            </p>
+
+
+            {% if current_user.is_authenticated %}
+
+            <a href="{{ url_for('discussions.create') }}" class="btn-primary mt-5">
+
+                <i data-lucide="plus" class="w-4 h-4"></i>
+
+                Start Discussion
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+    });
+
+</script>
+
+{% endblock %}

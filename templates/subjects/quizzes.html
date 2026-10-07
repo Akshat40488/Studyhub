@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-4 sm:p-6 lg:p-8">
+    <!-- Header -->
+    <div class="mb-8 animate-slide-up">
+        <nav class="flex items-center gap-2 text-sm text-surface-500 mb-4" aria-label="Breadcrumb">
+            <a href="{{ url_for('index') }}" class="hover:text-surface-300 transition-colors duration-150">Home</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ url_for('subjects.index') }}" class="hover:text-surface-300 transition-colors duration-150">Subjects</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-white">{{ subject.name }}</span>
+        </nav>
+        
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: {{ subject.color }}15;">
+                        <i data-lucide="{{ subject.icon }}" class="w-8 h-8" style="color: {{ subject.color }}"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">{{ subject.name }}</h1>
+                        <p class="text-surface-400">{{ subject.description }}</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-4 text-sm text-surface-500">
+                    <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-4 h-4"></i>{{ material_count }} materials</span>
+                    <span class="flex items-center gap-1"><i data-lucide="clipboard-check" class="w-4 h-4"></i>{{ quiz_count }} quizzes</span>
+                    <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-4 h-4"></i>{{ doubt_count }} doubts</span>
+                    <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-4 h-4"></i>{{ discussion_count }} discussions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quizzes -->
+    <div class="animate-slide-up">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-white">Quizzes</h2>
+        </div>
+        
+        {% if quizzes.items %}
+        <div class="space-y-4">
+            {% for quiz in quizzes.items %}
+            <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}" class="card hover:border-accent-blue/20 transition-colors duration-150">
+                <div class="p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="badge badge-primary">{{ quiz.subject.name }}</span>
+                            </div>
+                            <h3 class="font-medium text-white truncate">{{ quiz.title }}</h3>
+                            {% if quiz.description %}
+                            <p class="text-sm text-surface-500 mt-1">{{ quiz.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3 text-sm text-surface-500">
+                            <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-4 h-4"></i>{{ quiz.question_count }} questions</span>
+                            <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i>{{ quiz.time_limit }} min</span>
+                            <span class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i>{{ quiz.attempt_count }} attempts</span>
+                            <span class="badge badge-success">{{ quiz.passing_score }}% to pass</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-surface-500 ml-auto flex-shrink-0"></i>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if quizzes.pages > 1 %}
+        <div class="mt-8 flex items-center justify-center gap-2">
+            {% if quizzes.has_prev %}
+            <a href="{{ url_for('subjects.quizzes', slug=subject.slug, page=quizzes.prev_num) }}" class="btn-outline btn-sm">Previous</a>
+            {% endif %}
+            <span class="text-sm text-surface-500 px-4">Page {{ quizzes.page }} of {{ quizzes.pages }}</span>
+            {% if quizzes.has_next %}
+            <a href="{{ url_for('subjects.quizzes', slug=subject.slug, page=quizzes.next_num) }}" class="btn-primary btn-sm">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="card">
+            <div class="empty-state">
+                <i data-lucide="clipboard-check" class="empty-state-icon"></i>
+                <h4 class="empty-state-title">No quizzes available</h4>
+                <p class="empty-state-description">Check back later for new quizzes in this subject.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

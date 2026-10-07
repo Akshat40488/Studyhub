@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden pt-20 lg:pt-32 pb-20 lg:pb-32">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div class="relative z-10">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-neon-cyan/30 text-neon-cyan text-sm font-medium mb-8 animate-slide-up">
+                    <span class="w-2 h-2 rounded-full neon-gradient-cyan-blue animate-pulse"></span>
+                    New: AI-powered study recommendations now available
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-tight mb-6 animate-slide-up" style="animation-delay: 100ms;">
+                    Study smarter, <span class="bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-purple bg-clip-text text-transparent">together</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-text-secondary leading-relaxed mb-8 max-w-xl animate-slide-up" style="animation-delay: 200ms;">
+                    Join thousands of students on the collaborative learning platform. Share materials, solve doubts, form study groups, take quizzes, and track your progress with AI-powered insights.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 animate-slide-up" style="animation-delay: 300ms;">
+                    <a href="{{ url_for('auth.register') }}" class="btn-primary btn-lg w-full sm:w-auto neon-ring">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        Get Started Free
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn-secondary btn-lg w-full sm:w-auto">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        Sign In
+                    </a>
+                </div>
+                <div class="flex flex-wrap items-center gap-6 mt-10 animate-slide-up" style="animation-delay: 400ms;">
+                    <div class="flex items-center gap-1">
+                        <div class="w-8 h-8 rounded-full neon-gradient-cyan-blue border-2 border-bg-primary flex items-center justify-center text-bg-primary text-xs font-medium">A</div>
+                        <div class="w-8 h-8 rounded-full glass-card border-2 border-bg-primary flex items-center justify-center text-text-muted text-xs font-medium">B</div>
+                        <div class="w-8 h-8 rounded-full bg-neon-green/20 border-2 border-bg-primary flex items-center justify-center text-neon-green text-xs font-medium">C</div>
+                        <div class="w-8 h-8 rounded-full bg-neon-orange/20 border-2 border-bg-primary flex items-center justify-center text-neon-orange text-xs font-medium">D</div>
+                        <div class="w-8 h-8 rounded-full bg-neon-pink/20 border-2 border-bg-primary flex items-center justify-center text-neon-pink text-xs font-medium">E</div>
+                        <div class="w-8 h-8 rounded-full neon-gradient-cyan-blue border-2 border-bg-primary flex items-center justify-center text-bg-primary text-xs font-medium">+12K</div>
+                    </div>
+                    <span class="text-sm text-text-muted">Students already learning</span>
+                </div>
+            </div>
+            
+            <div class="relative animate-slide-up" style="animation-delay: 200ms;">
+                <div class="relative glass-card rounded-3xl overflow-hidden neon-border-cyan">
+                    <div class="flex items-center gap-2 px-4 py-3 glass-panel border-b border-glass-border">
+                        <div class="flex gap-1.5">
+                            <div class="w-3 h-3 rounded-full bg-neon-pink"></div>
+                            <div class="w-3 h-3 rounded-full bg-neon-orange"></div>
+                            <div class="w-3 h-3 rounded-full bg-neon-green"></div>
+                        </div>
+                        <div class="flex-1 text-center text-sm text-text-muted font-mono">dashboard.studyhub.app</div>
+                    </div>
+                    <div class="p-6 lg:p-8 space-y-4">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="glass-card rounded-xl p-4 neon-border-cyan">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-8 h-8 rounded-lg neon-gradient-cyan-blue flex items-center justify-center">
+                                        <i data-lucide="book-open" class="w-4 h-4 text-bg-primary"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-text-primary">Materials</span>
+                                </div>
+                                <div class="text-2xl font-bold text-text-primary animate-count-up" data-target="2847">0</div>
+                            </div>
+                            <div class="glass-card rounded-xl p-4 neon-border-cyan">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-8 h-8 rounded-lg neon-gradient-purple-pink flex items-center justify-center">
+                                        <i data-lucide="users" class="w-4 h-4 text-bg-primary"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-text-primary">Groups</span>
+                                </div>
+                                <div class="text-2xl font-bold text-text-primary animate-count-up" data-target="156">0</div>
+                            </div>
+                            <div class="glass-card rounded-xl p-4 neon-border-cyan">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-8 h-8 rounded-lg neon-gradient-blue-purple flex items-center justify-center">
+                                        <i data-lucide="clipboard-check" class="w-4 h-4 text-bg-primary"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-text-primary">Quizzes</span>
+                                </div>
+                                <div class="text-2xl font-bold text-text-primary animate-count-up" data-target="423">0</div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-glass-border">
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-text-muted">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full neon-gradient-cyan-blue"></div>
+                                    <span>Study streak: 12 days</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full bg-neon-green"></div>
+                                    <span>Avg score: 87%</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full bg-neon-orange"></div>
+                                    <span>Rank: #247</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-8 -right-8 w-80 h-80 bg-gradient-to-br from-neon-cyan to-neon-blue rounded-full blur-3xl opacity-20 animate-float"></div>
+                <div class="absolute -top-8 -left-8 w-96 h-96 bg-gradient-to-br from-neon-purple to-neon-pink rounded-full blur-3xl opacity-20 animate-float" style="animation-delay: -2s;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Indicators -->
+<section class="py-12 glass-panel border-y border-glass-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center animate-slide-up">
+                <div class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-neon-cyan to-neon-blue bg-clip-text text-transparent">12K+</div>
+                <div class="text-sm text-text-muted mt-1">Active Students</div>
+            </div>
+            <div class="text-center animate-slide-up" style="animation-delay: 100ms;">
+                <div class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">45K+</div>
+                <div class="text-sm text-text-muted mt-1">Materials Shared</div>
+            </div>
+            <div class="text-center animate-slide-up" style="animation-delay: 200ms;">
+                <div class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-neon-purple to-neon-pink bg-clip-text text-transparent">8.2K</div>
+                <div class="text-sm text-text-muted mt-1">Doubts Resolved</div>
+            </div>
+            <div class="text-center animate-slide-up" style="animation-delay: 300ms;">
+                <div class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-neon-green to-neon-cyan bg-clip-text text-transparent">94%</div>
+                <div class="text-sm text-text-muted mt-1">Satisfaction Rate</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16 animate-slide-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">Everything you need to excel</h2>
+            <p class="text-lg text-text-secondary">Powerful features designed for modern collaborative learning</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Feature 1 -->
+            <div class="dashboard-card p-6 lg:p-8 group animate-slide-up">
+                <div class="w-14 h-14 rounded-xl neon-gradient-cyan-blue group-hover:animate-pulse-glow transition-all duration-300 flex items-center justify-center mb-6">
+                    <i data-lucide="book-open" class="w-7 h-7 text-bg-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Study Materials</h3>
+                <p class="text-text-secondary mb-6">Upload, organize, and share notes, PDFs, and documents. Rate materials, leave feedback, and discover the best resources for your subjects.</p>
+                <ul class="space-y-3 text-sm text-text-secondary">
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Multiple file formats</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Rating & feedback system</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Subject-based organization</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="dashboard-card p-6 lg:p-8 group animate-slide-up" style="animation-delay: 100ms;">
+                <div class="w-14 h-14 rounded-xl neon-gradient-blue-purple group-hover:animate-pulse-glow transition-all duration-300 flex items-center justify-center mb-6">
+                    <i data-lucide="help-circle" class="w-7 h-7 text-bg-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Doubts & Answers</h3>
+                <p class="text-text-secondary mb-6">Post questions, get answers from peers, and mark the best solution. Filter by subject, find unanswered doubts, and build your knowledge base.</p>
+                <ul class="space-y-3 text-sm text-text-secondary">
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Accepted answer marking</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Subject tagging</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Search & filter</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="dashboard-card p-6 lg:p-8 group animate-slide-up" style="animation-delay: 200ms;">
+                <div class="w-14 h-14 rounded-xl neon-gradient-purple-pink group-hover:animate-pulse-glow transition-all duration-300 flex items-center justify-center mb-6">
+                    <i data-lucide="message-square" class="w-7 h-7 text-bg-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Discussions</h3>
+                <p class="text-text-secondary mb-6">Engage in meaningful conversations with threaded replies, upvotes, and topic-based organization. Build a community around your subjects.</p>
+                <ul class="space-y-3 text-sm text-text-secondary">
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Threaded replies</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Sort by popular/recent</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Pin & lock discussions</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="dashboard-card p-6 lg:p-8 group animate-slide-up" style="animation-delay: 300ms;">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-neon-orange to-neon-pink group-hover:animate-pulse-glow transition-all duration-300 flex items-center justify-center mb-6">
+                    <i data-lucide="users" class="w-7 h-7 text-bg-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Study Groups</h3>
+                <p class="text-text-secondary mb-6">Create or join study groups for focused collaboration. Share materials, discuss topics, and work together on assignments in private or public groups.</p>
+                <ul class="space-y-3 text-sm text-text-secondary">
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Private & public groups</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Shared materials & discussions</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Role-based permissions</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="dashboard-card p-6 lg:p-8 group animate-slide-up" style="animation-delay: 400ms;">
+                <div class="w-14 h-14 rounded-xl neon-gradient-blue-purple group-hover:animate-pulse-glow transition-all duration-300 flex items-center justify-center mb-6">
+                    <i data-lucide="clipboard-check" class="w-7 h-7 text-bg-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Quizzes & MCQs</h3>
+                <p class="text-text-secondary mb-6">Create and take timed quizzes with instant scoring, detailed explanations, and attempt history. Track your improvement over time.</p>
+                <ul class="space-y-3 text-sm text-text-secondary">
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Timed & shuffled modes</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Detailed explanations</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Attempt history & analytics</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="dashboard-card p-6 lg:p-8 group animate-slide-up" style="animation-delay: 500ms;">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-neon-pink to-neon-purple group-hover:animate-pulse-glow transition-all duration-300 flex items-center justify-center mb-6">
+                    <i data-lucide="brain" class="w-7 h-7 text-bg-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">AI Recommendations</h3>
+                <p class="text-text-secondary mb-6">Get personalized study material and quiz recommendations based on your learning patterns, weak areas, and peer activity using machine learning.</p>
+                <ul class="space-y-3 text-sm text-text-secondary">
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Content-based filtering</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Collaborative filtering</li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-neon-green"></i> Weak area detection</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-20 lg:py-28 glass-panel border-y border-glass-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16 animate-slide-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">Get started in 3 simple steps</h2>
+            <p class="text-lg text-text-secondary">From signup to studying in minutes</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 relative">
+            <div class="relative text-center animate-slide-up">
+                <div class="w-20 h-20 rounded-2xl neon-gradient-cyan-blue flex items-center justify-center mx-auto mb-6 group-hover:animate-pulse-glow transition-all duration-300">
+                    <span class="text-3xl font-bold text-bg-primary">1</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Create your account</h3>
+                <p class="text-text-secondary">Sign up with your email, set up your profile, and select your subjects of interest.</p>
+            </div>
+            
+            <div class="relative text-center animate-slide-up" style="animation-delay: 100ms;">
+                <div class="w-20 h-20 rounded-2xl neon-gradient-blue-purple flex items-center justify-center mx-auto mb-6 group-hover:animate-pulse-glow transition-all duration-300">
+                    <span class="text-3xl font-bold text-bg-primary">2</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Explore & engage</h3>
+                <p class="text-text-secondary">Browse materials, join discussions, ask doubts, and discover study groups in your subjects.</p>
+            </div>
+            
+            <div class="relative text-center animate-slide-up" style="animation-delay: 200ms;">
+                <div class="w-20 h-20 rounded-2xl neon-gradient-purple-pink flex items-center justify-center mx-auto mb-6 group-hover:animate-pulse-glow transition-all duration-300">
+                    <span class="text-3xl font-bold text-bg-primary">3</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-3">Track & improve</h3>
+                <p class="text-text-secondary">Take quizzes, monitor your progress, get AI recommendations, and achieve your learning goals.</p>
+            </div>
+            
+            <div class="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent" style="z-index: -1;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Subjects Preview -->
+<section class="py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10 animate-slide-up">
+            <div>
+                <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-2">Popular Subjects</h2>
+                <p class="text-text-secondary">Explore our growing collection of study materials across disciplines</p>
+            </div>
+            <a href="{{ url_for('subjects.index') }}" class="btn-secondary neon-border-cyan">View All Subjects <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {% for subject in subjects[:8] %}
+            <a href="{{ url_for('subjects.show', slug=subject.slug) }}" class="dashboard-card p-6 text-center group animate-slide-up" style="animation-delay: {{ loop.index * 50 }}ms;">
+                <div class="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center group-hover:animate-pulse-glow transition-all duration-300" style="background: {{ subject.color }}15;">
+                    <i data-lucide="{{ subject.icon }}" class="w-7 h-7" style="color: {{ subject.color }};"></i>
+                </div>
+                <h3 class="font-semibold text-text-primary mb-1">{{ subject.name }}</h3>
+                <p class="text-xs text-text-muted">{{ StudyMaterial.query.filter_by(subject_id=subject.id, is_public=True).count() }} materials</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 lg:py-28 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-30">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-neon-cyan to-neon-blue blur-3xl animate-float"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-gradient-to-br from-neon-purple to-neon-pink blur-3xl animate-float" style="animation-delay: -2s;"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="max-w-3xl mx-auto animate-slide-up">
+            <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-6">Ready to transform your learning?</h2>
+            <p class="text-lg text-text-secondary mb-10">Join thousands of students who are already using StudyHub to study smarter and achieve better results.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('auth.register') }}" class="btn-primary btn-lg w-full sm:w-auto neon-ring">
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    Start Learning Free
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn-secondary btn-lg w-full sm:w-auto neon-border-cyan">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Sign In
+                </a>
+            </div>
+            <p class="mt-6 text-text-muted text-sm">No credit card required · Cancel anytime · Free forever for students</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        
+        // Counter animation for stats
+        const counters = document.querySelectorAll('.animate-count-up');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.dataset.target);
+                    const duration = 2000;
+                    const step = target / (duration / 16);
+                    let current = 0;
+                    
+                    const updateCounter = () => {
+                        current += step;
+                        if (current < target) {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target.toLocaleString();
+                        }
+                    };
+                    
+                    updateCounter();
+                    counterObserver.unobserve(counter);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        counters.forEach(counter => counterObserver.observe(counter));
+    });
+</script>
+{% endblock %}

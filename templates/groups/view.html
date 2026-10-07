@@ -1,0 +1,744 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-secondary-500 mb-6" aria-label="Breadcrumb">
+        <a href="{{ url_for('index') }}" class="hover:text-primary-600 transition-colors">
+            Home
+        </a>
+
+        <i data-lucide="chevron-right" class="w-4 h-4 text-secondary-300"></i>
+
+        <a href="{{ url_for('groups.index') }}" class="hover:text-primary-600 transition-colors">
+            Groups
+        </a>
+
+        <i data-lucide="chevron-right" class="w-4 h-4 text-secondary-300"></i>
+
+        <span class="text-secondary-900 truncate max-w-xs">
+            {{ group.name }}
+        </span>
+    </nav>
+
+
+    {% if not is_member and group.is_private %}
+
+    <!-- =====================================================
+         PRIVATE GROUP
+    ====================================================== -->
+
+    <div class="card overflow-hidden">
+
+        <div class="card-body text-center py-16">
+
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-primary-50 flex items-center justify-center mb-5">
+
+                <i data-lucide="lock" class="w-8 h-8 text-primary-600"></i>
+
+            </div>
+
+            <h2 class="text-2xl font-bold text-secondary-900 mb-2">
+                Private Group
+            </h2>
+
+            <p class="text-secondary-500 max-w-md mx-auto mb-6 leading-relaxed">
+                This is a private group. You need to be a member to view its content.
+            </p>
+
+
+            {% if current_user.is_authenticated %}
+
+            <form method="POST" action="{{ url_for('groups.join', group_id=group.id) }}" class="inline">
+
+                <button type="submit" class="btn-primary">
+
+                    <i data-lucide="users" class="w-4 h-4"></i>
+
+                    Request to Join
+
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-primary">
+
+                <i data-lucide="log-in" class="w-4 h-4"></i>
+
+                Sign In to Join
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- =====================================================
+         GROUP HEADER
+    ====================================================== -->
+
+    <div class="card overflow-hidden mb-6">
+
+        <div class="card-body p-5 sm:p-7">
+
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+
+
+                <!-- Group Info -->
+
+                <div class="flex items-start gap-4 min-w-0">
+
+                    <div
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary-50 flex items-center justify-center flex-shrink-0">
+
+                        <i data-lucide="users" class="w-7 h-7 sm:w-8 sm:h-8 text-primary-600"></i>
+
+                    </div>
+
+
+                    <div class="min-w-0">
+
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+
+                            <span class="badge badge-primary">
+                                {{ group.subject.name }}
+                            </span>
+
+
+                            {% if group.is_private %}
+
+                            <span class="badge badge-secondary">
+
+                                <i data-lucide="lock" class="w-3 h-3"></i>
+
+                                Private
+
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-secondary-900 leading-tight">
+                            {{ group.name }}
+                        </h1>
+
+
+                        <p class="text-secondary-500 text-sm mt-2 leading-6 max-w-2xl">
+                            {{ group.description or 'No description available.' }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Actions -->
+
+                <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+
+                    {% if not is_member %}
+
+                    <form method="POST" action="{{ url_for('groups.join', group_id=group.id) }}">
+
+                        <button type="submit" class="btn-primary">
+
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+
+                            Join Group
+
+                        </button>
+
+                    </form>
+
+
+                    {% else %}
+
+
+                    <form method="POST" action="{{ url_for('groups.leave', group_id=group.id) }}"
+                        onsubmit="return confirm('Are you sure you want to leave this group?')">
+
+                        <button type="submit" class="btn-outline">
+
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+
+                            Leave Group
+
+                        </button>
+
+                    </form>
+
+
+                    {% if current_user.is_authenticated and (membership.role == 'admin' or group.creator_id ==
+                    current_user.id) %}
+
+                    <form method="POST" action="{{ url_for('groups.delete', group_id=group.id) }}"
+                        onsubmit="return confirm('Are you sure you want to delete this group? This action cannot be undone.')">
+
+                        <button type="submit" class="btn-danger">
+
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+
+                            Delete Group
+
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- Stats -->
+
+            <div class="mt-6 pt-6 border-t border-secondary-100 grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                <div class="text-center">
+
+                    <div class="text-2xl font-bold text-secondary-900">
+                        {{ group.member_count }}
+                    </div>
+
+                    <div class="text-xs text-secondary-500 mt-1">
+                        Members
+                    </div>
+
+                </div>
+
+
+                <div class="text-center">
+
+                    <div class="text-2xl font-bold text-secondary-900">
+                        {{ group.materials.count() }}
+                    </div>
+
+                    <div class="text-xs text-secondary-500 mt-1">
+                        Materials
+                    </div>
+
+                </div>
+
+
+                <div class="text-center">
+
+                    <div class="text-2xl font-bold text-secondary-900">
+                        {{ group.discussions.count() }}
+                    </div>
+
+                    <div class="text-xs text-secondary-500 mt-1">
+                        Discussions
+                    </div>
+
+                </div>
+
+
+                <div class="text-center">
+
+                    <div class="text-2xl font-bold text-secondary-900">
+                        {{ group.created_at|timeago }}
+                    </div>
+
+                    <div class="text-xs text-secondary-500 mt-1">
+                        Created
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN CONTENT + SIDEBAR
+    ====================================================== -->
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+
+        <!-- =================================================
+             MAIN
+        ================================================== -->
+
+        <div class="lg:col-span-2 space-y-6">
+
+
+            <!-- Shared Materials -->
+
+            {% if materials %}
+
+            <div class="card overflow-hidden">
+
+                <div class="card-header">
+
+                    <div class="flex items-center justify-between gap-4">
+
+                        <div>
+
+                            <div class="flex items-center gap-2">
+
+                                <i data-lucide="folder-open" class="w-5 h-5 text-primary-600"></i>
+
+                                <h3 class="text-lg font-semibold text-secondary-900">
+                                    Shared Materials
+                                </h3>
+
+                            </div>
+
+                            <p class="text-xs text-secondary-500 mt-1">
+                                Resources shared with this group.
+                            </p>
+
+                        </div>
+
+
+                        {% if is_member %}
+
+                        <a href="{{ url_for('materials.upload') }}?group={{ group.id }}"
+                            class="btn-outline btn-sm flex-shrink-0">
+
+                            <i data-lucide="upload" class="w-4 h-4"></i>
+
+                            Share Material
+
+                        </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-0">
+
+                    <div class="divide-y divide-secondary-100">
+
+                        {% for gm in materials %}
+
+                        <a href="{{ url_for('materials.view', material_id=gm.material.id) }}"
+                            class="group flex items-center gap-4 p-4 hover:bg-secondary-50 transition-colors">
+
+                            <div
+                                class="w-10 h-10 rounded-xl bg-secondary-50 flex items-center justify-center flex-shrink-0">
+
+                                <i data-lucide="file-text" class="w-5 h-5 text-secondary-500"></i>
+
+                            </div>
+
+
+                            <div class="flex-1 min-w-0">
+
+                                <h4
+                                    class="font-medium text-secondary-900 truncate group-hover:text-primary-700 transition-colors">
+                                    {{ gm.material.title }}
+                                </h4>
+
+                                <p class="text-xs sm:text-sm text-secondary-500 mt-1 truncate">
+                                    Shared by {{ gm.shared_by.name }}
+                                    •
+                                    {{ gm.shared_at|timeago }}
+                                </p>
+
+                            </div>
+
+
+                            <span class="file-type-badge flex-shrink-0">
+                                {{ gm.material.file_extension.upper() }}
+                            </span>
+
+
+                            <i data-lucide="chevron-right"
+                                class="w-4 h-4 text-secondary-300 group-hover:text-primary-600 flex-shrink-0 transition-colors"></i>
+
+                        </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 DISCUSSIONS
+            ================================================== -->
+
+            <div class="card overflow-hidden">
+
+                <div class="card-header">
+
+                    <div class="flex items-center gap-2">
+
+                        <i data-lucide="messages-square" class="w-5 h-5 text-primary-600"></i>
+
+                        <h3 class="text-lg font-semibold text-secondary-900">
+                            Discussions
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-0">
+
+                    {% if discussions %}
+
+                    <div class="divide-y divide-secondary-100">
+
+                        {% for gd in discussions %}
+
+                        <a href="#" class="group flex items-start gap-4 p-4 hover:bg-secondary-50 transition-colors">
+
+                            <div
+                                class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
+
+                                <i data-lucide="message-square" class="w-5 h-5 text-primary-600"></i>
+
+                            </div>
+
+
+                            <div class="flex-1 min-w-0">
+
+                                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+
+                                    {% if gd.is_pinned %}
+
+                                    <span class="badge badge-warning text-xs">
+
+                                        <i data-lucide="pin" class="w-3 h-3"></i>
+
+                                        Pinned
+
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <h4
+                                    class="font-medium text-secondary-900 group-hover:text-primary-700 transition-colors">
+                                    {{ gd.title }}
+                                </h4>
+
+
+                                <p class="text-sm text-secondary-500 mt-1 line-clamp-2">
+                                    {{ gd.content | truncate(100) }}
+                                </p>
+
+
+                                <p class="text-xs text-secondary-400 mt-2">
+                                    by {{ gd.author.name }}
+                                    •
+                                    {{ gd.created_at|timeago }}
+                                </p>
+
+                            </div>
+
+
+                            <i data-lucide="chevron-right"
+                                class="w-4 h-4 text-secondary-300 group-hover:text-primary-600 flex-shrink-0 mt-1 transition-colors"></i>
+
+                        </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="empty-state py-10">
+
+                        <div class="w-12 h-12 mx-auto rounded-xl bg-primary-50 flex items-center justify-center mb-3">
+
+                            <i data-lucide="message-square" class="w-6 h-6 text-primary-600"></i>
+
+                        </div>
+
+                        <h4 class="empty-state-title">
+                            No discussions yet
+                        </h4>
+
+                        <p class="empty-state-description">
+                            Start a conversation with your group.
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Create Discussion -->
+
+                {% if is_member %}
+
+                <div class="card-footer">
+
+                    <form method="POST" action="{{ url_for('groups.create_discussion', group_id=group.id) }}"
+                        class="space-y-4">
+
+                        <div>
+
+                            <label for="discussion-title" class="label">
+                                Discussion Title
+                            </label>
+
+                            <input type="text" id="discussion-title" name="title" class="input"
+                                placeholder="Start a new discussion..." required maxlength="200">
+
+                        </div>
+
+
+                        <div>
+
+                            <label for="discussion-content" class="label">
+                                Message
+                            </label>
+
+                            <textarea id="discussion-content" name="content" rows="4" class="input resize-none"
+                                placeholder="Share your thoughts with the group..." required minlength="10"></textarea>
+
+                        </div>
+
+
+                        <button type="submit" class="btn-primary">
+
+                            <i data-lucide="send" class="w-4 h-4"></i>
+
+                            Create Discussion
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <div class="lg:col-span-1 space-y-6">
+
+
+            <!-- Members -->
+
+            <div class="card overflow-hidden">
+
+                <div class="card-header">
+
+                    <div class="flex items-center justify-between gap-3">
+
+                        <div>
+
+                            <div class="flex items-center gap-2">
+
+                                <i data-lucide="users" class="w-5 h-5 text-primary-600"></i>
+
+                                <h3 class="text-lg font-semibold text-secondary-900">
+                                    Members
+                                </h3>
+
+                            </div>
+
+                            <p class="text-xs text-secondary-500 mt-1">
+                                {{ group.member_count }} group members
+                            </p>
+
+                        </div>
+
+                        <span class="badge badge-secondary">
+                            {{ group.member_count }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-0">
+
+                    <div class="divide-y divide-secondary-100">
+
+                        {% for member in members %}
+
+                        <div class="flex items-center gap-3 p-4 hover:bg-secondary-50 transition-colors">
+
+                            <img src="{{ url_for('static', filename='images/' + member.user.avatar) }}" alt=""
+                                class="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+                                onerror="this.src='https://ui-avatars.com/api/?name={{ member.user.name }}&background=3B82F6&color=fff&size=36'">
+
+
+                            <div class="flex-1 min-w-0">
+
+                                <p class="font-medium text-secondary-900 truncate">
+                                    {{ member.user.name }}
+                                </p>
+
+                                <p class="text-xs text-secondary-500 mt-0.5">
+
+                                    {% if member.role == 'admin' %}
+                                    Admin
+                                    {% else %}
+                                    Member
+                                    {% endif %}
+
+                                    • Joined {{ member.joined_at|timeago }}
+
+                                </p>
+
+                            </div>
+
+
+                            {% if member.role == 'admin' %}
+
+                            <span class="badge badge-primary text-xs">
+                                Admin
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Share Material -->
+
+            {% if is_member %}
+
+            <div class="card overflow-hidden">
+
+                <div class="card-header">
+
+                    <div class="flex items-center gap-2">
+
+                        <i data-lucide="share-2" class="w-5 h-5 text-primary-600"></i>
+
+                        <h3 class="text-lg font-semibold text-secondary-900">
+                            Share Material
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <form method="POST" action="{{ url_for('groups.share_material', group_id=group.id) }}">
+
+                        <div class="mb-4">
+
+                            <label for="material_id" class="label">
+                                Select Material
+                            </label>
+
+                            <select name="material_id" id="material_id" class="input" required>
+
+                                <option value="">
+                                    Choose a material to share
+                                </option>
+
+                                {% for material in current_user.materials.filter_by(is_public=True).all() %}
+
+                                <option value="{{ material.id }}">
+                                    {{ material.title }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <button type="submit" class="btn-primary w-full justify-center">
+
+                            <i data-lucide="share-2" class="w-4 h-4"></i>
+
+                            Share with Group
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+    });
+
+</script>
+
+{% endblock %}

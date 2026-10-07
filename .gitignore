@@ -1,0 +1,36 @@
+# Environment / secrets
+.env
+
+# Python virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite databases
+instance/*.db
+instance/*.sqlite
+instance/*.sqlite3
+
+# Database backups
+*_backup.db
+*_backup.sqlite
+*_backup.sqlite3
+
+# User uploads
+uploads/*
+!uploads/.gitkeep
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

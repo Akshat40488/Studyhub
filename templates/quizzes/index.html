@@ -1,0 +1,1012 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --quiz-bg: #f5f5f7;
+        --quiz-text: #1d1d1f;
+        --quiz-muted: #6e6e73;
+        --quiz-line: rgba(0, 0, 0, .08);
+        --quiz-blue: #0071e3;
+        --quiz-purple: #8b5cf6;
+        --quiz-pink: #ec4899;
+        --quiz-green: #16a34a;
+        --quiz-shadow:
+            0 22px 65px rgba(0, 0, 0, .07),
+            0 5px 18px rgba(0, 0, 0, .035);
+    }
+
+    /* ================================
+       PAGE
+       ================================ */
+
+    .quiz-page {
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+
+        /* FIXED TOP SPACING */
+        padding: 82px 20px 100px;
+
+        box-sizing: border-box;
+
+        background:
+            radial-gradient(circle at 5% 5%,
+                rgba(96, 165, 250, .15),
+                transparent 28%),
+            radial-gradient(circle at 95% 15%,
+                rgba(244, 114, 182, .12),
+                transparent 28%),
+            radial-gradient(circle at 50% 100%,
+                rgba(167, 139, 250, .11),
+                transparent 35%),
+            var(--quiz-bg);
+
+        color: var(--quiz-text);
+    }
+
+    .quiz-container {
+        max-width: 1180px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* ================================
+       BACKGROUND EFFECTS
+       ================================ */
+
+    .ambient {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(95px);
+        pointer-events: none;
+        opacity: .2;
+        z-index: 0;
+        animation: drift 13s ease-in-out infinite alternate;
+    }
+
+    .ambient-a {
+        width: 310px;
+        height: 310px;
+        background: #60a5fa;
+        left: -130px;
+        top: 8%;
+    }
+
+    .ambient-b {
+        width: 270px;
+        height: 270px;
+        background: #f472b6;
+        right: -110px;
+        top: 50%;
+        animation-delay: -5s;
+    }
+
+    @keyframes drift {
+        from {
+            transform: translate(0, 0);
+        }
+
+        to {
+            transform: translate(25px, -20px);
+        }
+    }
+
+    /* ================================
+       HEADER
+       ================================ */
+
+    .quiz-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 25px;
+        margin-bottom: 25px;
+        animation: reveal .65s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .78);
+        border: 1px solid rgba(255, 255, 255, .9);
+        color: var(--quiz-muted);
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: .4px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .04);
+    }
+
+    .eyebrow i {
+        color: var(--quiz-purple);
+    }
+
+    .quiz-title {
+        margin: 17px 0 7px;
+        font-size: clamp(40px, 5vw, 60px);
+        line-height: 1;
+        letter-spacing: -3px;
+        font-weight: 760;
+    }
+
+    .gradient-text {
+        background: linear-gradient(100deg,
+                #0071e3,
+                #8b5cf6 55%,
+                #ec4899);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .quiz-subtitle {
+        margin: 0;
+        color: var(--quiz-muted);
+        font-size: 15px;
+        line-height: 1.55;
+    }
+
+    .create-btn {
+        min-height: 47px;
+        padding: 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        color: #fff;
+        background: linear-gradient(135deg,
+                #0071e3,
+                #2997ff);
+        box-shadow: 0 12px 28px rgba(0, 113, 227, .23);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+        transition: .22s ease;
+    }
+
+    .create-btn:hover {
+        transform: translateY(-3px);
+        box-shadow:
+            0 17px 35px rgba(0, 113, 227, .30);
+    }
+
+    /* ================================
+       FILTER
+       ================================ */
+
+    .filter-card {
+        padding: 17px;
+        margin-bottom: 20px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, .80);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--quiz-shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        animation: reveal .7s .08s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-select {
+        width: 270px;
+        min-height: 45px;
+        padding: 0 13px;
+        border: 1px solid var(--quiz-line);
+        border-radius: 13px;
+        outline: none;
+        background: #f8f8fa;
+        color: var(--quiz-text);
+        font: inherit;
+        font-size: 12px;
+        transition: .2s ease;
+    }
+
+    .filter-select:focus {
+        background: #fff;
+        border-color: rgba(0, 113, 227, .35);
+        box-shadow:
+            0 0 0 4px rgba(0, 113, 227, .07);
+    }
+
+    .filter-btn {
+        min-height: 45px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 13px;
+        background: #1d1d1f;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        background: #000;
+    }
+
+    /* ================================
+       QUIZ GRID
+       ================================ */
+
+    .quiz-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+    }
+
+    .quiz-card {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 22px;
+        border-radius: 25px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--quiz-shadow);
+        color: inherit;
+        text-decoration: none;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+
+        transition:
+            transform .25s cubic-bezier(.16, 1, .3, 1),
+            box-shadow .25s ease,
+            border-color .25s ease;
+
+        animation:
+            cardIn .65s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .quiz-card:nth-child(2) {
+        animation-delay: .06s;
+    }
+
+    .quiz-card:nth-child(3) {
+        animation-delay: .12s;
+    }
+
+    .quiz-card:nth-child(4) {
+        animation-delay: .18s;
+    }
+
+    .quiz-card:nth-child(5) {
+        animation-delay: .24s;
+    }
+
+    .quiz-card:nth-child(6) {
+        animation-delay: .30s;
+    }
+
+    .quiz-card::before {
+        content: "";
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        right: -60px;
+        top: -70px;
+        border-radius: 50%;
+        background:
+            linear-gradient(135deg,
+                #60a5fa,
+                #8b5cf6);
+        filter: blur(35px);
+        opacity: .10;
+        transition: .3s ease;
+    }
+
+    .quiz-card:hover {
+        transform: translateY(-7px);
+        border-color: rgba(0, 113, 227, .12);
+        box-shadow:
+            0 30px 70px rgba(0, 0, 0, .10),
+            0 8px 22px rgba(0, 0, 0, .04);
+    }
+
+    .quiz-card:hover::before {
+        opacity: .18;
+    }
+
+    .quiz-card-top {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .quiz-icon {
+        width: 54px;
+        height: 54px;
+        display: grid;
+        place-items: center;
+        border-radius: 17px;
+        color: var(--quiz-purple);
+        background:
+            linear-gradient(145deg,
+                #eeeaff,
+                #f4f0ff);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .9),
+            0 10px 25px rgba(139, 92, 246, .10);
+        transition: .25s ease;
+    }
+
+    .quiz-card:hover .quiz-icon {
+        transform: rotate(-4deg) scale(1.04);
+    }
+
+    .subject-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 25px;
+        padding: 0 9px;
+        border-radius: 999px;
+        color: #0066cc;
+        background: #e8f2ff;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    .quiz-card-title {
+        position: relative;
+        z-index: 2;
+        margin: 17px 0 0;
+        font-size: 17px;
+        line-height: 1.3;
+        letter-spacing: -.3px;
+        font-weight: 720;
+    }
+
+    .quiz-description {
+        position: relative;
+        z-index: 2;
+        margin: 9px 0 0;
+        color: var(--quiz-muted);
+        font-size: 11px;
+        line-height: 1.55;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .quiz-stats {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 20px;
+    }
+
+    .stat {
+        padding: 11px 7px;
+        text-align: center;
+        border-radius: 13px;
+        background: #f7f7f9;
+    }
+
+    .stat i {
+        display: block;
+        margin: 0 auto 5px;
+        color: #8e8e93;
+    }
+
+    .stat-value {
+        display: block;
+        color: var(--quiz-text);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .stat-label {
+        display: block;
+        margin-top: 2px;
+        color: #8e8e93;
+        font-size: 8px;
+    }
+
+    .quiz-footer {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 15px;
+        border-top: 1px solid var(--quiz-line);
+    }
+
+    .pass-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 9px;
+        color: #15803d;
+        background: #e9f9ef;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    .open-quiz {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--quiz-blue);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .open-quiz i {
+        transition: transform .2s;
+    }
+
+    .quiz-card:hover .open-quiz i {
+        transform: translateX(3px);
+    }
+
+    /* ================================
+       PAGINATION
+       ================================ */
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        margin-top: 25px;
+    }
+
+    .page-btn {
+        min-height: 38px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 11px;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 700;
+        transition: .2s;
+    }
+
+    .page-prev {
+        color: var(--quiz-text);
+        background: rgba(255, 255, 255, .8);
+        border: 1px solid var(--quiz-line);
+    }
+
+    .page-next {
+        color: #fff;
+        background: #1d1d1f;
+    }
+
+    .page-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .page-number {
+        color: var(--quiz-muted);
+        font-size: 11px;
+    }
+
+    /* ================================
+       EMPTY STATE
+       ================================ */
+
+    .empty-card {
+        padding: 75px 25px;
+        text-align: center;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--quiz-shadow);
+    }
+
+    .empty-icon {
+        width: 70px;
+        height: 70px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 17px;
+        border-radius: 22px;
+        color: var(--quiz-purple);
+        background:
+            linear-gradient(145deg,
+                #eeeaff,
+                #f4f0ff);
+    }
+
+    .empty-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 720;
+    }
+
+    .empty-description {
+        max-width: 420px;
+        margin: 8px auto 0;
+        color: var(--quiz-muted);
+        font-size: 12px;
+    }
+
+    .empty-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 19px;
+        min-height: 42px;
+        padding: 0 15px;
+        border-radius: 13px;
+        color: #fff;
+        background: var(--quiz-blue);
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* ================================
+       ANIMATIONS
+       ================================ */
+
+    @keyframes reveal {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes cardIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* ================================
+       RESPONSIVE
+       ================================ */
+
+    @media (max-width: 1000px) {
+
+        .quiz-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+    }
+
+    @media (max-width: 650px) {
+
+        .quiz-page {
+            /* FIXED MOBILE TOP SPACING */
+            padding: 65px 14px 75px;
+        }
+
+        .quiz-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .quiz-title {
+            font-size: 41px;
+            letter-spacing: -2px;
+        }
+
+        .quiz-subtitle {
+            font-size: 14px;
+        }
+
+        .create-btn {
+            width: 100%;
+        }
+
+        .filter-form {
+            flex-direction: column;
+        }
+
+        .filter-select {
+            width: 100%;
+        }
+
+        .filter-btn {
+            width: 100%;
+        }
+
+        .quiz-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .quiz-card {
+            padding: 20px;
+        }
+
+    }
+</style>
+
+
+<div class="quiz-page">
+
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+
+
+    <main class="quiz-container">
+
+        <!-- HEADER -->
+
+        <header class="quiz-header">
+
+            <div>
+
+                <div class="eyebrow">
+
+                    <i data-lucide="brain" width="13"></i>
+
+                    KNOWLEDGE LAB
+
+                </div>
+
+
+                <h1 class="quiz-title">
+
+                    Test your
+
+                    <span class="gradient-text">
+                        knowledge.
+                    </span>
+
+                </h1>
+
+
+                <p class="quiz-subtitle">
+
+                    Practice with focused quizzes and see how much
+                    you've learned.
+
+                </p>
+
+            </div>
+
+
+            {% if current_user.is_authenticated %}
+
+            <a href="{{ url_for('quizzes.create') }}" class="create-btn">
+
+                <i data-lucide="plus" width="16"></i>
+
+                Create Quiz
+
+            </a>
+
+            {% endif %}
+
+        </header>
+
+
+        <!-- FILTER -->
+
+        <section class="filter-card">
+
+            <form method="GET" action="{{ url_for('quizzes.index') }}" class="filter-form">
+
+                <select name="subject_id" class="filter-select">
+
+                    <option value="">
+                        All Subjects
+                    </option>
+
+                    {% for subject in subjects %}
+
+                    <option value="{{ subject.id }}" {% if subject_id==subject.id %} selected {% endif %}>
+
+                        {{ subject.name }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <button type="submit" class="filter-btn">
+
+                    <i data-lucide="sliders-horizontal" width="14"></i>
+
+                    Filter
+
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- QUIZ GRID -->
+
+        {% if quizzes.items %}
+
+        <div class="quiz-grid">
+
+            {% for quiz in quizzes.items %}
+
+            <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}" class="quiz-card">
+
+                <div class="quiz-card-top">
+
+                    <div class="quiz-icon">
+
+                        <i data-lucide="clipboard-check" width="25"></i>
+
+                    </div>
+
+
+                    <span class="subject-badge">
+
+                        {{ quiz.subject.name }}
+
+                    </span>
+
+                </div>
+
+
+                <h2 class="quiz-card-title">
+
+                    {{ quiz.title }}
+
+                </h2>
+
+
+                {% if quiz.description %}
+
+                <p class="quiz-description">
+
+                    {{ quiz.description }}
+
+                </p>
+
+                {% endif %}
+
+
+                <div class="quiz-stats">
+
+                    <div class="stat">
+
+                        <i data-lucide="help-circle" width="15"></i>
+
+                        <span class="stat-value">
+                            {{ quiz.question_count }}
+                        </span>
+
+                        <span class="stat-label">
+                            Questions
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <i data-lucide="clock-3" width="15"></i>
+
+                        <span class="stat-value">
+                            {{ quiz.time_limit }}m
+                        </span>
+
+                        <span class="stat-label">
+                            Time
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <i data-lucide="users" width="15"></i>
+
+                        <span class="stat-value">
+                            {{ quiz.attempt_count }}
+                        </span>
+
+                        <span class="stat-label">
+                            Attempts
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="quiz-footer">
+
+                    <span class="pass-badge">
+
+                        <i data-lucide="target" width="11"></i>
+
+                        {{ quiz.passing_score }}% to pass
+
+                    </span>
+
+
+                    <span class="open-quiz">
+
+                        View Quiz
+
+                        <i data-lucide="arrow-up-right" width="13"></i>
+
+                    </span>
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        {% if quizzes.pages > 1 %}
+
+        <div class="pagination">
+
+            {% if quizzes.has_prev %}
+
+            <a href="{{ url_for(
+                    'quizzes.index',
+                    page=quizzes.prev_num,
+                    subject_id=subject_id
+                ) }}" class="page-btn page-prev">
+
+                <i data-lucide="chevron-left" width="13"></i>
+
+                Previous
+
+            </a>
+
+            {% endif %}
+
+
+            <span class="page-number">
+
+                Page {{ quizzes.page }}
+                of {{ quizzes.pages }}
+
+            </span>
+
+
+            {% if quizzes.has_next %}
+
+            <a href="{{ url_for(
+                    'quizzes.index',
+                    page=quizzes.next_num,
+                    subject_id=subject_id
+                ) }}" class="page-btn page-next">
+
+                Next
+
+                <i data-lucide="chevron-right" width="13"></i>
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+
+        <section class="empty-card">
+
+            <div class="empty-icon">
+
+                <i data-lucide="clipboard-check" width="31"></i>
+
+            </div>
+
+
+            <h2 class="empty-title">
+
+                No quizzes found
+
+            </h2>
+
+
+            <p class="empty-description">
+
+                {% if subject_id %}
+
+                No quizzes in this subject yet.
+
+                {% else %}
+
+                No quizzes are available right now.
+
+                {% endif %}
+
+            </p>
+
+
+            {% if current_user.is_authenticated %}
+
+            <a href="{{ url_for('quizzes.create') }}" class="empty-action">
+
+                <i data-lucide="plus" width="14"></i>
+
+                Create a Quiz
+
+            </a>
+
+            {% endif %}
+
+        </section>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

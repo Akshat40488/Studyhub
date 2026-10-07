@@ -1,0 +1,116 @@
+<div class="p-5 sm:p-6 {% if comment.parent_id %}ml-6 sm:ml-10 bg-secondary-50/50{% endif %}"
+    id="comment-{{ comment.id }}">
+
+    <div class="flex gap-3">
+
+
+        <!-- Avatar -->
+
+        <img src="{{ url_for('static', filename='images/' + comment.author.avatar) }}" alt=""
+            class="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+            onerror="this.src='https://ui-avatars.com/api/?name={{ comment.author.name }}&background=3B82F6&color=fff&size=36'">
+
+
+        <!-- Comment -->
+
+        <div class="flex-1 min-w-0">
+
+
+            <!-- Author + Time -->
+
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+
+                <span class="font-semibold text-secondary-900 text-sm">
+                    {{ comment.author.name }}
+                </span>
+
+                <span class="text-xs text-secondary-400">
+                    •
+                </span>
+
+                <span class="text-xs text-secondary-500">
+                    {{ comment.created_at|timeago }}
+                </span>
+
+
+                {% if current_user.is_authenticated and not comment.parent_id %}
+
+                <button type="button" onclick="replyToComment({{ comment.id }})"
+                    class="ml-1 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+                    Reply
+                </button>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Comment Content -->
+
+            <div class="text-sm text-secondary-700 leading-6 whitespace-pre-wrap break-words">
+                {{ comment.content }}
+            </div>
+
+
+            <!-- Replies -->
+
+            {% if comment.replies %}
+
+            <div class="mt-4 space-y-3">
+
+                {% for reply in comment.replies %}
+
+                <div class="ml-2 sm:ml-4 pl-4 border-l-2 border-secondary-200">
+
+                    <div class="flex gap-2.5">
+
+
+                        <!-- Reply Avatar -->
+
+                        <img src="{{ url_for('static', filename='images/' + reply.author.avatar) }}" alt=""
+                            class="w-7 h-7 rounded-lg object-cover flex-shrink-0"
+                            onerror="this.src='https://ui-avatars.com/api/?name={{ reply.author.name }}&background=3B82F6&color=fff&size=28'">
+
+
+                        <!-- Reply Content -->
+
+                        <div class="flex-1 min-w-0">
+
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+
+                                <span class="font-semibold text-secondary-900 text-sm">
+                                    {{ reply.author.name }}
+                                </span>
+
+                                <span class="text-xs text-secondary-400">
+                                    •
+                                </span>
+
+                                <span class="text-xs text-secondary-500">
+                                    {{ reply.created_at|timeago }}
+                                </span>
+
+                            </div>
+
+
+                            <p class="text-sm text-secondary-600 leading-6 whitespace-pre-wrap break-words">
+                                {{ reply.content }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>

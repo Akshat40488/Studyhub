@@ -1,0 +1,1911 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+  /* =========================================================
+   MODERN APPLE-INSPIRED STUDY DASHBOARD
+   ========================================================= */
+
+  :root {
+    --app-bg: #f5f5f7;
+    --card: rgba(255, 255, 255, .78);
+    --card-solid: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --line: rgba(0, 0, 0, .08);
+
+    --blue: #0071e3;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --green: #16a34a;
+    --orange: #f97316;
+
+    --shadow:
+      0 20px 60px rgba(0, 0, 0, .08),
+      0 4px 14px rgba(0, 0, 0, .04);
+
+    --radius: 28px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 5% 0%, rgba(0, 113, 227, .12), transparent 28%),
+      radial-gradient(circle at 95% 10%, rgba(236, 72, 153, .10), transparent 28%),
+      radial-gradient(circle at 50% 100%, rgba(139, 92, 246, .10), transparent 35%),
+      var(--app-bg);
+    color: var(--text);
+  }
+
+  /* Background atmosphere */
+
+  .dashboard-shell {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ambient {
+    position: fixed;
+    border-radius: 999px;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: .28;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+
+  .ambient.one {
+    width: 320px;
+    height: 320px;
+    background: #60a5fa;
+    top: 5%;
+    left: -120px;
+  }
+
+  .ambient.two {
+    width: 280px;
+    height: 280px;
+    background: #f472b6;
+    right: -100px;
+    top: 35%;
+    animation-delay: -4s;
+  }
+
+  .ambient.three {
+    width: 300px;
+    height: 300px;
+    background: #a78bfa;
+    bottom: -120px;
+    left: 40%;
+    animation-delay: -7s;
+  }
+
+  @keyframes drift {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    to {
+      transform: translate3d(25px, -20px, 0) scale(1.08);
+    }
+  }
+
+  /* Main container */
+
+  .dashboard-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1440px;
+    margin: auto;
+    padding: 48px 28px 100px;
+  }
+
+  /* Hero */
+
+  .hero {
+    min-height: 500px;
+    display: grid;
+    grid-template-columns: 1.25fr .75fr;
+    gap: 28px;
+    align-items: stretch;
+    margin-bottom: 30px;
+  }
+
+  .hero-main {
+    position: relative;
+    overflow: hidden;
+    padding: 52px;
+    border-radius: 36px;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(96, 165, 250, .35), transparent 28%),
+      radial-gradient(circle at 20% 90%, rgba(236, 72, 153, .18), transparent 32%),
+      linear-gradient(135deg, #ffffff, #f8f8fb);
+    border: 1px solid rgba(255, 255, 255, .8);
+    box-shadow: var(--shadow);
+  }
+
+  .hero-main::after {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    right: -100px;
+    bottom: -140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    filter: blur(70px);
+    opacity: .25;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, .04);
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 5px rgba(34, 197, 94, .12);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    50% {
+      transform: scale(1.35);
+      opacity: .6;
+    }
+  }
+
+  .hero h1 {
+    margin: 24px 0 16px;
+    font-size: clamp(42px, 5vw, 72px);
+    line-height: .98;
+    letter-spacing: -4px;
+    font-weight: 750;
+  }
+
+  .gradient-text {
+    background: linear-gradient(100deg, #0071e3, #8b5cf6 55%, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-description {
+    max-width: 620px;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.65;
+  }
+
+  /* Buttons */
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .apple-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 46px;
+    padding: 0 19px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease,
+      background .2s ease;
+  }
+
+  .apple-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .apple-btn:active {
+    transform: scale(.97);
+  }
+
+  .primary-btn {
+    color: #fff;
+    background: linear-gradient(135deg, #0071e3, #2997ff);
+    box-shadow: 0 10px 25px rgba(0, 113, 227, .25);
+  }
+
+  .primary-btn:hover {
+    box-shadow: 0 15px 32px rgba(0, 113, 227, .32);
+  }
+
+  .secondary-btn {
+    color: var(--text);
+    background: rgba(255, 255, 255, .72);
+    border-color: var(--line);
+  }
+
+  .secondary-btn:hover {
+    background: #fff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .07);
+  }
+
+  /* Hero visual */
+
+  .hero-visual {
+    position: relative;
+    min-height: 500px;
+    border-radius: 36px;
+    overflow: hidden;
+    background:
+      linear-gradient(145deg, #111827, #1e293b);
+    box-shadow: var(--shadow);
+  }
+
+  .hero-orbit {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, .12);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotate 20s linear infinite;
+  }
+
+  .hero-orbit::before {
+    content: "";
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #60a5fa;
+    top: 35px;
+    left: 70px;
+    box-shadow: 0 0 25px #60a5fa;
+  }
+
+  .hero-orbit.two {
+    width: 230px;
+    height: 230px;
+    animation-duration: 14s;
+    animation-direction: reverse;
+  }
+
+  .hero-orbit.two::before {
+    background: #f472b6;
+    box-shadow: 0 0 25px #f472b6;
+    top: auto;
+    left: auto;
+    right: 25px;
+    bottom: 50px;
+  }
+
+  @keyframes rotate {
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  .progress-orb {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180px;
+    height: 180px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    background:
+      radial-gradient(circle at 35% 25%, #60a5fa, transparent 35%),
+      linear-gradient(145deg, #2563eb, #7c3aed);
+    box-shadow:
+      0 0 80px rgba(96, 165, 250, .35),
+      inset 0 0 35px rgba(255, 255, 255, .12);
+    animation: orbFloat 5s ease-in-out infinite;
+  }
+
+  @keyframes orbFloat {
+    50% {
+      transform: translate(-50%, -54%);
+    }
+  }
+
+  .progress-orb strong {
+    display: block;
+    font-size: 38px;
+    letter-spacing: -2px;
+  }
+
+  .progress-orb span {
+    font-size: 12px;
+    opacity: .75;
+  }
+
+  /* Stats */
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .stat {
+    padding: 20px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(255, 255, 255, .8);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, .05);
+    transition: .25s ease;
+  }
+
+  .stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .09);
+  }
+
+  .stat-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    margin-bottom: 13px;
+  }
+
+  .stat-number {
+    font-size: 27px;
+    font-weight: 750;
+    letter-spacing: -1px;
+  }
+
+  .stat-label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 3px;
+  }
+
+  /* Section */
+
+  .section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 70px 0 22px;
+  }
+
+  .section-heading h2 {
+    font-size: 34px;
+    letter-spacing: -1.5px;
+    margin: 0;
+  }
+
+  .section-heading p {
+    color: var(--muted);
+    margin: 7px 0 0;
+  }
+
+  /* Bento */
+
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(180px, auto);
+    gap: 18px;
+  }
+
+  .card {
+    position: relative;
+    overflow: hidden;
+    padding: 25px;
+    border-radius: var(--radius);
+    background: var(--card);
+    border: 1px solid rgba(255, 255, 255, .85);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition:
+      transform .28s cubic-bezier(.2, .8, .2, 1),
+      box-shadow .28s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+      0 28px 70px rgba(0, 0, 0, .11),
+      0 5px 15px rgba(0, 0, 0, .04);
+  }
+
+  .card-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .card-wide {
+    grid-column: span 2;
+  }
+
+  .card-title {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.4px;
+  }
+
+  .card-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .icon-box {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+
+  .blue {
+    background: #e8f2ff;
+    color: #0071e3;
+  }
+
+  .purple {
+    background: #f1eaff;
+    color: #7c3aed;
+  }
+
+  .pink {
+    background: #ffeaf3;
+    color: #db2777;
+  }
+
+  .green {
+    background: #e9f9ef;
+    color: #16a34a;
+  }
+
+  .orange {
+    background: #fff1e5;
+    color: #ea580c;
+  }
+
+  /* Learning list */
+
+  .learning-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .learning-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 13px;
+    border-radius: 17px;
+    color: inherit;
+    text-decoration: none;
+    background: rgba(245, 245, 247, .85);
+    border: 1px solid rgba(0, 0, 0, .045);
+    transition: .22s ease;
+  }
+
+  .learning-item:hover {
+    background: #fff;
+    transform: translateX(4px);
+  }
+
+  .item-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .item-content {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .item-title {
+    font-size: 14px;
+    font-weight: 650;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .item-meta {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  /* Progress */
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 0 22px;
+  }
+
+  .progress-ring {
+    width: 190px;
+    height: 190px;
+  }
+
+  .progress-center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+
+  .progress-value {
+    font-size: 35px;
+    font-weight: 750;
+    letter-spacing: -2px;
+  }
+
+  .progress-label {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  /* Subject progress */
+
+  .subject-list {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+  }
+
+  .subject-row {
+    display: grid;
+    gap: 7px;
+  }
+
+  .subject-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .subject-name {
+    font-weight: 600;
+  }
+
+  .subject-score {
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .progress-track {
+    height: 7px;
+    border-radius: 999px;
+    background: #e9e9ed;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    animation: fillProgress 1.3s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  @keyframes fillProgress {
+    to {
+      width: var(--width);
+    }
+  }
+
+  /* Mini stats */
+
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .mini-stat {
+    padding: 17px;
+    border-radius: 17px;
+    background: #f7f7f9;
+    text-align: center;
+  }
+
+  .mini-stat strong {
+    display: block;
+    font-size: 24px;
+  }
+
+  .mini-stat span {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 4px;
+  }
+
+  /* Recommendation / quiz / discussion */
+
+  .resource-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 11px;
+  }
+
+  .resource {
+    padding: 14px;
+    border-radius: 17px;
+    background: #f7f7f9;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
+    transition: .22s ease;
+  }
+
+  .resource:hover {
+    background: white;
+    border-color: var(--line);
+    transform: translateY(-2px);
+  }
+
+  .resource-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: white;
+    margin-bottom: 11px;
+  }
+
+  .resource-title {
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .resource-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  /* Card footer */
+
+  .card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+    padding-top: 15px;
+    border-top: 1px solid var(--line);
+  }
+
+  .text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .text-link:hover {
+    gap: 9px;
+  }
+
+  /* Empty state */
+
+  .empty {
+    text-align: center;
+    padding: 30px 15px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 12px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    background: #f1f1f4;
+  }
+
+  /* Entrance animation */
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: reveal .7s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  .delay-1 {
+    animation-delay: .08s;
+  }
+
+  .delay-2 {
+    animation-delay: .16s;
+  }
+
+  .delay-3 {
+    animation-delay: .24s;
+  }
+
+  .delay-4 {
+    animation-delay: .32s;
+  }
+
+  .delay-5 {
+    animation-delay: .40s;
+  }
+
+  @keyframes reveal {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Floating button */
+
+  .fab {
+    position: fixed;
+    right: 26px;
+    bottom: 26px;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #0071e3, #8b5cf6);
+    color: white;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 16px 35px rgba(0, 113, 227, .28);
+    cursor: pointer;
+    z-index: 100;
+    transition: .25s ease;
+  }
+
+  .fab:hover {
+    transform: translateY(-4px) rotate(3deg);
+    box-shadow: 0 22px 45px rgba(0, 113, 227, .35);
+  }
+
+  /* Responsive */
+
+  @media (max-width: 1100px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-visual {
+      min-height: 360px;
+    }
+
+    .bento {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .card-large,
+    .card-wide {
+      grid-column: span 2;
+    }
+
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .dashboard-container {
+      padding: 25px 15px 90px;
+    }
+
+    .hero-main {
+      padding: 30px 24px;
+      border-radius: 27px;
+    }
+
+    .hero h1 {
+      font-size: 43px;
+      letter-spacing: -2.5px;
+    }
+
+    .hero-description {
+      font-size: 15px;
+    }
+
+    .hero-visual {
+      min-height: 300px;
+      border-radius: 27px;
+    }
+
+    .stats {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .stat {
+      padding: 15px;
+    }
+
+    .stat-number {
+      font-size: 22px;
+    }
+
+    .section-heading {
+      margin-top: 45px;
+    }
+
+    .section-heading h2 {
+      font-size: 27px;
+    }
+
+    .bento {
+      grid-template-columns: 1fr;
+    }
+
+    .card-large,
+    .card-wide {
+      grid-column: span 1;
+    }
+
+    .resource-list {
+      grid-template-columns: 1fr;
+    }
+
+    .action-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .apple-btn {
+      width: 100%;
+    }
+
+    .fab {
+      right: 18px;
+      bottom: 18px;
+    }
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="dashboard-shell">
+
+  <div class="ambient one"></div>
+  <div class="ambient two"></div>
+  <div class="ambient three"></div>
+
+  <main class="dashboard-container">
+
+    <!-- ================= HERO ================= -->
+
+    <section class="hero">
+
+      <div class="hero-main reveal">
+        <div class="hero-content">
+
+          <div class="eyebrow">
+            <span class="live-dot"></span>
+            Welcome back, {{ current_user.name }}
+          </div>
+
+          <h1>
+            Learn smarter.<br>
+            <span class="gradient-text">Go further.</span>
+          </h1>
+
+          <p class="hero-description">
+            Continue your learning journey, discover useful study material,
+            practice quizzes and stay connected with your study community.
+          </p>
+
+          <div class="action-row">
+
+            <a href="{{ url_for('materials.upload') }}" class="apple-btn primary-btn">
+              <i data-lucide="plus" width="17"></i>
+              Add Material
+            </a>
+
+            <a href="{{ url_for('quizzes.index') }}" class="apple-btn secondary-btn">
+              <i data-lucide="clipboard-check" width="17"></i>
+              Practice Quiz
+            </a>
+
+            <a href="{{ url_for('groups.index') }}" class="apple-btn secondary-btn">
+              <i data-lucide="users" width="17"></i>
+              Study Groups
+            </a>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- Hero visual -->
+
+      <div class="hero-visual reveal delay-2">
+
+        <div class="hero-orbit"></div>
+        <div class="hero-orbit two"></div>
+
+        {% set overall_pct =
+        (progress_data.subject_scores | sum /
+        progress_data.subject_scores | length)
+        if (progress_data.subject_scores | length > 0)
+        else 0
+        %}
+
+        <div class="progress-orb">
+
+          <div>
+            <strong>{{ "%.0f"|format(overall_pct) }}%</strong>
+            <span>OVERALL PROGRESS</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= STATS ================= -->
+
+    <section class="stats">
+
+      <div class="stat reveal delay-1">
+        <div class="stat-icon blue">
+          <i data-lucide="book-open"></i>
+        </div>
+        <div class="stat-number">{{ stats.materials_viewed }}</div>
+        <div class="stat-label">Materials Viewed</div>
+      </div>
+
+      <div class="stat reveal delay-2">
+        <div class="stat-icon purple">
+          <i data-lucide="clipboard-check"></i>
+        </div>
+        <div class="stat-number">{{ stats.quiz_attempts }}</div>
+        <div class="stat-label">Quiz Attempts</div>
+      </div>
+
+      <div class="stat reveal delay-3">
+        <div class="stat-icon pink">
+          <i data-lucide="trending-up"></i>
+        </div>
+        <div class="stat-number">{{ stats.average_score }}%</div>
+        <div class="stat-label">Average Score</div>
+      </div>
+
+      <div class="stat reveal delay-4">
+        <div class="stat-icon green">
+          <i data-lucide="flame"></i>
+        </div>
+        <div class="stat-number">{{ stats.study_streak }}</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+
+    </section>
+
+
+    <!-- ================= LEARNING SPACE ================= -->
+
+    <div class="section-heading reveal">
+      <div>
+        <h2>Your Learning Space</h2>
+        <p>Everything important, right where you need it.</p>
+      </div>
+    </div>
+
+
+    <section class="bento">
+
+      <!-- CONTINUE LEARNING -->
+
+      <article class="card card-large reveal delay-1">
+
+        <div class="card-header">
+          <div>
+            <div class="card-title">Continue Learning</div>
+            <div class="card-subtitle">
+              Pick up exactly where you left off
+            </div>
+          </div>
+
+          <div class="icon-box blue">
+            <i data-lucide="play"></i>
+          </div>
+        </div>
+
+        {% if continue_learning %}
+
+        <div class="learning-list">
+
+          {% for item in continue_learning[:4] %}
+
+          <a href="{% if item.type == 'material' %}
+                    {{ url_for('materials.view', material_id=item.item.id) }}
+                  {% else %}
+                    {{ url_for('quizzes.view', quiz_id=item.item.id) }}
+                  {% endif %}" class="learning-item">
+
+            {% if item.type == 'material' %}
+
+            <div class="item-icon" style="background:linear-gradient(135deg,#0071e3,#06b6d4)">
+              <i data-lucide="file-text"></i>
+            </div>
+
+            {% else %}
+
+            <div class="item-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">
+              <i data-lucide="clipboard-check"></i>
+            </div>
+
+            {% endif %}
+
+            <div class="item-content">
+
+              <div class="item-title">
+                {{ item.item.title }}
+              </div>
+
+              <div class="item-meta">
+
+                {% if item.type == 'material' %}
+                {{ item.item.subject.name }}
+                · {{ item.item.views }} views
+                {% else %}
+                {{ item.item.subject.name }}
+                · {{ item.item.question_count }} questions
+                {% endif %}
+
+              </div>
+
+            </div>
+
+            <i data-lucide="chevron-right" style="color:#8e8e93"></i>
+
+          </a>
+
+          {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">
+            <i data-lucide="book-open"></i>
+          </div>
+
+          <strong>No learning activity yet</strong>
+
+          <p>
+            Upload material or start a quiz to begin.
+          </p>
+
+          <a href="{{ url_for('materials.upload') }}" class="apple-btn primary-btn">
+            Upload Material
+          </a>
+        </div>
+
+        {% endif %}
+
+        <div class="card-footer">
+          <a href="{{ url_for('dashboard.index') }}#continue" class="text-link">
+            View all
+            <i data-lucide="arrow-right" width="15"></i>
+          </a>
+        </div>
+
+      </article>
+
+
+      <!-- OVERALL PROGRESS -->
+
+      <article class="card reveal delay-2">
+
+        <div class="card-header">
+
+          <div>
+            <div class="card-title">Progress</div>
+            <div class="card-subtitle">Your overall performance</div>
+          </div>
+
+          <div class="icon-box blue">
+            <i data-lucide="activity"></i>
+          </div>
+
+        </div>
+
+        <div class="progress-wrap">
+
+          <div style="position:relative">
+
+            <svg class="progress-ring" viewBox="0 0 120 120">
+
+              <circle cx="60" cy="60" r="47" fill="none" stroke="#e9e9ed" stroke-width="8" />
+
+              <circle cx="60" cy="60" r="47" fill="none" stroke="url(#progressGradient)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="{{ 295 - (295 * overall_pct / 100) }}"
+                transform="rotate(-90 60 60)" />
+
+              <defs>
+
+                <linearGradient id="progressGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#0071e3" />
+                  <stop offset="50%" stop-color="#8b5cf6" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+
+              </defs>
+
+            </svg>
+
+            <div class="progress-center">
+
+              <div>
+                <div class="progress-value">
+                  {{ "%.0f"|format(overall_pct) }}%
+                </div>
+
+                <div class="progress-label">
+                  Overall
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="mini-grid">
+
+          <div class="mini-stat">
+            <strong>{{ stats.quiz_attempts }}</strong>
+            <span>Quizzes</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>{{ stats.average_score }}%</strong>
+            <span>Avg Score</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>{{ stats.subjects_studied }}</strong>
+            <span>Subjects</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>{{ stats.study_streak }}</strong>
+            <span>Streak</span>
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- SUBJECT PROGRESS -->
+
+      <article class="card reveal delay-3">
+
+        <div class="card-header">
+
+          <div>
+            <div class="card-title">Subjects</div>
+            <div class="card-subtitle">Track your performance</div>
+          </div>
+
+          <div class="icon-box purple">
+            <i data-lucide="layers"></i>
+          </div>
+
+        </div>
+
+        {% if progress_data.subject_labels %}
+
+        <div class="subject-list">
+
+          {% for i in range(progress_data.subject_labels|length) %}
+
+          <div class="subject-row">
+
+            <div class="subject-info">
+
+              <span class="subject-name">
+                {{ progress_data.subject_labels[i] }}
+              </span>
+
+              <span class="subject-score">
+                {{ progress_data.subject_scores[i] }}%
+              </span>
+
+            </div>
+
+            <div class="progress-track">
+
+              <div class="progress-fill" style="
+                  --width: {{ progress_data.subject_scores[i] }}%;
+                  background: {{ progress_data.subject_colors[i] }};
+                "></div>
+
+            </div>
+
+          </div>
+
+          {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">
+            <i data-lucide="bar-chart-3"></i>
+          </div>
+
+          <p>No subject progress yet.</p>
+
+          <a href="{{ url_for('quizzes.index') }}" class="apple-btn primary-btn">
+            Start a Quiz
+          </a>
+        </div>
+
+        {% endif %}
+
+      </article>
+
+
+      <!-- WEEKLY STATS -->
+
+      <article class="card reveal delay-4">
+
+        <div class="card-header">
+
+          <div>
+            <div class="card-title">This Week</div>
+            <div class="card-subtitle">Your activity snapshot</div>
+          </div>
+
+          <div class="icon-box green">
+            <i data-lucide="calendar-days"></i>
+          </div>
+
+        </div>
+
+        <div class="mini-grid">
+
+          <div class="mini-stat">
+            <strong>{{ stats.quiz_attempts }}</strong>
+            <span>Quizzes</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>{{ stats.materials_viewed }}</strong>
+            <span>Materials</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>{{ stats.study_streak }}</strong>
+            <span>Streak</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>{{ stats.subjects_studied }}</strong>
+            <span>Subjects</span>
+          </div>
+
+        </div>
+
+        <div style="margin-top:22px">
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            font-size:12px;
+            margin-bottom:8px;
+          ">
+            <span style="color:var(--muted)">
+              Current streak
+            </span>
+
+            <strong>{{ stats.study_streak }} days</strong>
+          </div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:repeat(7,1fr);
+            gap:5px;
+          ">
+
+            {% for i in range(7) %}
+
+            <div style="
+              height:28px;
+              border-radius:8px;
+              background:
+              {% if i < stats.study_streak %}
+                linear-gradient(135deg,#22c55e,#16a34a)
+              {% else %}
+                #e9e9ed
+              {% endif %};
+            "></div>
+
+            {% endfor %}
+
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- RECOMMENDATIONS -->
+
+      <article class="card card-wide reveal delay-3">
+
+        <div class="card-header">
+
+          <div>
+            <div class="card-title">Curated for You</div>
+            <div class="card-subtitle">
+              Recommendations based on your learning
+            </div>
+          </div>
+
+          <form method="POST" action="{{ url_for('api.refresh_recommendations') }}">
+
+            <button type="submit" class="apple-btn secondary-btn" style="padding:0;width:42px;height:42px"
+              aria-label="Refresh recommendations">
+              <i data-lucide="refresh-cw" width="17"></i>
+            </button>
+
+          </form>
+
+        </div>
+
+        {% if recommendations.materials %}
+
+        <div class="resource-list">
+
+          {% for material in recommendations.materials[:4] %}
+
+          <a href="{{ url_for('materials.view', material_id=material.id) }}" class="resource">
+
+            <div class="resource-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">
+              <i data-lucide="file-text" width="17"></i>
+            </div>
+
+            <div class="resource-title">
+              {{ material.title }}
+            </div>
+
+            <div class="resource-meta">
+              {{ material.subject.name }}
+              · {{ material.views }} views
+            </div>
+
+          </a>
+
+          {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">
+            <i data-lucide="sparkles"></i>
+          </div>
+
+          <p>No recommendations yet.</p>
+
+          <a href="{{ url_for('subjects.index') }}" class="apple-btn primary-btn">
+            Explore Subjects
+          </a>
+        </div>
+
+        {% endif %}
+
+        <div class="card-footer">
+          <a href="{{ url_for('dashboard.index') }}#recommendations" class="text-link">
+            Explore more
+            <i data-lucide="arrow-right" width="15"></i>
+          </a>
+        </div>
+
+      </article>
+
+
+      <!-- QUIZZES -->
+
+      <article class="card reveal delay-4">
+
+        <div class="card-header">
+
+          <div>
+            <div class="card-title">Quizzes</div>
+            <div class="card-subtitle">Test your knowledge</div>
+          </div>
+
+          <div class="icon-box orange">
+            <i data-lucide="brain"></i>
+          </div>
+
+        </div>
+
+        {% if available_quizzes %}
+
+        <div class="learning-list">
+
+          {% for quiz in available_quizzes[:3] %}
+
+          <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}" class="learning-item">
+
+            <div class="item-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">
+              <i data-lucide="clipboard-check"></i>
+            </div>
+
+            <div class="item-content">
+
+              <div class="item-title">
+                {{ quiz.title }}
+              </div>
+
+              <div class="item-meta">
+                {{ quiz.subject.name }}
+                · {{ quiz.question_count }} Q
+                · {{ quiz.time_limit }} min
+              </div>
+
+            </div>
+
+            <i data-lucide="chevron-right" style="color:#8e8e93"></i>
+
+          </a>
+
+          {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">
+            <i data-lucide="clipboard-check"></i>
+          </div>
+
+          <p>No new quizzes available.</p>
+        </div>
+
+        {% endif %}
+
+        <div class="card-footer">
+          <a href="{{ url_for('quizzes.index') }}" class="text-link">
+            Browse quizzes
+            <i data-lucide="arrow-right" width="15"></i>
+          </a>
+        </div>
+
+      </article>
+
+
+      <!-- DISCUSSIONS -->
+
+      <article class="card reveal delay-5">
+
+        <div class="card-header">
+
+          <div>
+            <div class="card-title">Community</div>
+            <div class="card-subtitle">Recent discussions</div>
+          </div>
+
+          <div class="icon-box pink">
+            <i data-lucide="message-circle"></i>
+          </div>
+
+        </div>
+
+        {% if recent_discussions %}
+
+        <div class="learning-list">
+
+          {% for discussion in recent_discussions[:3] %}
+
+          <a href="{{ url_for('discussions.view', discussion_id=discussion.id) }}" class="learning-item">
+
+            <div class="item-icon" style="background:linear-gradient(135deg,#ec4899,#f97316)">
+              <i data-lucide="message-square"></i>
+            </div>
+
+            <div class="item-content">
+
+              <div class="item-title">
+                {{ discussion.title }}
+              </div>
+
+              <div class="item-meta">
+                {{ discussion.author.name }}
+                · {{ discussion.comment_count }} comments
+              </div>
+
+            </div>
+
+            <i data-lucide="chevron-right" style="color:#8e8e93"></i>
+
+          </a>
+
+          {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">
+            <i data-lucide="message-square"></i>
+          </div>
+
+          <p>No discussions yet.</p>
+        </div>
+
+        {% endif %}
+
+        <div class="card-footer">
+          <a href="{{ url_for('discussions.index') }}" class="text-link">
+            View community
+            <i data-lucide="arrow-right" width="15"></i>
+          </a>
+        </div>
+
+      </article>
+
+    </section>
+
+  </main>
+
+
+  <!-- Floating quick action -->
+
+  <button class="fab" id="fab-main" aria-label="Quick actions">
+    <i data-lucide="plus" width="23"></i>
+  </button>
+
+
+  <!-- Mobile quick actions -->
+
+  <div id="mobile-sheet" class="fixed inset-0 z-[200] hidden lg:hidden">
+
+    <div id="sheet-overlay" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <div id="sheet-content" class="absolute bottom-0 left-0 right-0 rounded-t-[28px] bg-white p-6 shadow-2xl">
+
+      <div class="flex items-center justify-between mb-5">
+
+        <div>
+          <h3 class="text-xl font-bold">
+            Quick Actions
+          </h3>
+
+          <p class="text-sm text-gray-500">
+            What do you want to do?
+          </p>
+        </div>
+
+        <button id="sheet-close" class="w-10 h-10 rounded-full bg-gray-100 grid place-items-center">
+          <i data-lucide="x"></i>
+        </button>
+
+      </div>
+
+      <div class="grid gap-3">
+
+        <a href="{{ url_for('materials.upload') }}" class="apple-btn secondary-btn justify-start">
+          <i data-lucide="upload"></i>
+          Upload Material
+        </a>
+
+        <a href="{{ url_for('doubts.ask') }}" class="apple-btn secondary-btn justify-start">
+          <i data-lucide="help-circle"></i>
+          Ask a Doubt
+        </a>
+
+        <a href="{{ url_for('groups.index') }}" class="apple-btn secondary-btn justify-start">
+          <i data-lucide="users"></i>
+          Join Study Group
+        </a>
+
+        <a href="{{ url_for('quizzes.index') }}" class="apple-btn secondary-btn justify-start">
+          <i data-lucide="clipboard-check"></i>
+          Take a Quiz
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+    /* Lucide */
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+
+
+    /* Progress animation */
+
+    const fills =
+      document.querySelectorAll(".progress-fill");
+
+    const observer =
+      new IntersectionObserver((entries) => {
+
+        entries.forEach(entry => {
+
+          if (entry.isIntersecting) {
+
+            entry.target.style.animationPlayState = "running";
+
+            observer.unobserve(entry.target);
+
+          }
+
+        });
+
+      }, {
+        threshold: .2
+      });
+
+    fills.forEach(fill => {
+
+      fill.style.animationPlayState = "paused";
+
+      observer.observe(fill);
+
+    });
+
+
+    /* FAB */
+
+    const fab =
+      document.getElementById("fab-main");
+
+    const sheet =
+      document.getElementById("mobile-sheet");
+
+    const overlay =
+      document.getElementById("sheet-overlay");
+
+    const content =
+      document.getElementById("sheet-content");
+
+    const close =
+      document.getElementById("sheet-close");
+
+
+    function openSheet() {
+
+      if (!sheet) return;
+
+      sheet.classList.remove("hidden");
+
+      requestAnimationFrame(() => {
+
+        content.style.transform = "translateY(0)";
+        overlay.style.opacity = "1";
+
+      });
+
+      document.body.style.overflow = "hidden";
+
+    }
+
+
+    function closeSheet() {
+
+      if (!sheet) return;
+
+      content.style.transform = "translateY(100%)";
+      overlay.style.opacity = "0";
+
+      setTimeout(() => {
+
+        sheet.classList.add("hidden");
+        document.body.style.overflow = "";
+
+      }, 280);
+
+    }
+
+
+    fab?.addEventListener("click", openSheet);
+
+    overlay?.addEventListener("click", closeSheet);
+
+    close?.addEventListener("click", closeSheet);
+
+
+    document.addEventListener("keydown", e => {
+
+      if (e.key === "Escape") {
+        closeSheet();
+      }
+
+    });
+
+
+    /* Smooth scrolling */
+
+    document
+      .querySelectorAll('a[href^="#"]')
+      .forEach(anchor => {
+
+        anchor.addEventListener("click", e => {
+
+          const target =
+            document.querySelector(
+              anchor.getAttribute("href")
+            );
+
+          if (!target) return;
+
+          e.preventDefault();
+
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        });
+
+      });
+
+
+    /* Hover tilt — subtle */
+
+    document
+      .querySelectorAll(".card")
+      .forEach(card => {
+
+        card.addEventListener("mousemove", e => {
+
+          if (window.innerWidth < 900) return;
+
+          const rect =
+            card.getBoundingClientRect();
+
+          const x =
+            (e.clientX - rect.left) / rect.width - .5;
+
+          const y =
+            (e.clientY - rect.top) / rect.height - .5;
+
+          card.style.transform =
+            `translateY(-5px)
+           perspective(900px)
+           rotateX(${y * -1.5}deg)
+           rotateY(${x * 1.5}deg)`;
+
+        });
+
+        card.addEventListener("mouseleave", () => {
+
+          card.style.transform = "";
+
+        });
+
+      });
+
+
+    /* Re-render icons after dynamic interactions */
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+
+  });
+
+</script>
+
+<style>
+  /* Mobile sheet animation */
+
+  #sheet-content {
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  #sheet-overlay {
+    opacity: 0;
+    transition: opacity .28s ease;
+  }
+
+  /* Prevent tilt on touch */
+
+  @media (hover:none) {
+
+    .card:hover {
+      transform: none;
+    }
+
+  }
+</style>
+
+{% endblock %}

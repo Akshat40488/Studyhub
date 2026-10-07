@@ -1,0 +1,1002 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --bg: #f5f5f7;
+        --text: #1d1d1f;
+        --muted: #6e6e73;
+        --line: rgba(0, 0, 0, .08);
+        --blue: #0071e3;
+        --purple: #8b5cf6;
+        --green: #16a34a;
+        --red: #dc2626;
+        --shadow: 0 22px 65px rgba(0, 0, 0, .07);
+    }
+
+    .result-page {
+        min-height: 100vh;
+        padding: 40px 18px 90px;
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 5% 5%, rgba(96, 165, 250, .14), transparent 27%),
+            radial-gradient(circle at 95% 15%, rgba(244, 114, 182, .11), transparent 27%),
+            radial-gradient(circle at 50% 100%, rgba(167, 139, 250, .10), transparent 35%),
+            var(--bg);
+    }
+
+    .result-container {
+        max-width: 900px;
+        margin: auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .glow {
+        position: fixed;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: .16;
+        pointer-events: none;
+    }
+
+    .glow-a {
+        background: #60a5fa;
+        left: -130px;
+        top: 20%;
+    }
+
+    .glow-b {
+        background: #c084fc;
+        right: -130px;
+        bottom: 15%;
+    }
+
+    /* Breadcrumb */
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+    .breadcrumb a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--blue);
+    }
+
+    .breadcrumb-current {
+        color: var(--text);
+        font-weight: 650;
+    }
+
+    /* Summary */
+
+    .summary {
+        position: relative;
+        overflow: hidden;
+        padding: 34px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, .85);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        text-align: center;
+        animation: reveal .65s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .summary::before {
+        content: "";
+        position: absolute;
+        width: 340px;
+        height: 340px;
+        top: -190px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background:
+            linear-gradient(135deg, #60a5fa, #8b5cf6, #ec4899);
+        filter: blur(75px);
+        opacity: .12;
+    }
+
+    .result-icon {
+        position: relative;
+        width: 88px;
+        height: 88px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 17px;
+        border-radius: 27px;
+    }
+
+    .result-icon.pass {
+        color: var(--green);
+        background: #e9f9ef;
+        box-shadow: 0 15px 35px rgba(22, 163, 74, .10);
+    }
+
+    .result-icon.fail {
+        color: var(--red);
+        background: #fff1f2;
+        box-shadow: 0 15px 35px rgba(220, 38, 38, .08);
+    }
+
+    .result-title {
+        position: relative;
+        margin: 0;
+        color: var(--text);
+        font-size: clamp(27px, 4vw, 39px);
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        font-weight: 760;
+    }
+
+    .result-meta {
+        position: relative;
+        margin: 9px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    /* Score */
+
+    .score-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 9px;
+        margin-top: 28px;
+        padding-top: 23px;
+        border-top: 1px solid var(--line);
+    }
+
+    .score-box {
+        padding: 16px 8px;
+        border-radius: 16px;
+        background: #f7f7f9;
+    }
+
+    .score-value {
+        color: var(--text);
+        font-size: 22px;
+        font-weight: 760;
+        letter-spacing: -.7px;
+    }
+
+    .score-value.pass {
+        color: var(--green);
+    }
+
+    .score-value.fail {
+        color: var(--red);
+    }
+
+    .score-label {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 9px;
+    }
+
+    /* Message */
+
+    .result-message {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 22px;
+        padding: 11px 16px;
+        border-radius: 13px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .result-message.pass {
+        color: #15803d;
+        background: #e9f9ef;
+    }
+
+    .result-message.fail {
+        color: #dc2626;
+        background: #fff1f2;
+    }
+
+    /* Review */
+
+    .review {
+        margin-top: 20px;
+        overflow: hidden;
+        border-radius: 27px;
+        background: rgba(255, 255, 255, .84);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        animation: reveal .65s .08s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .review-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 21px 25px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .review-title {
+        margin: 0;
+        color: var(--text);
+        font-size: 18px;
+        font-weight: 730;
+    }
+
+    .legend {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 9px;
+    }
+
+    .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .review-item {
+        padding: 24px 25px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .review-item:last-child {
+        border-bottom: 0;
+    }
+
+    .question-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+    }
+
+    .question-number {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 11px;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    .question-number.correct {
+        color: var(--green);
+        background: #e9f9ef;
+    }
+
+    .question-number.incorrect {
+        color: var(--red);
+        background: #fff1f2;
+    }
+
+    .question-text {
+        margin: 5px 0 0;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 680;
+    }
+
+    /* Options */
+
+    .options {
+        display: grid;
+        gap: 7px;
+        margin: 15px 0 0 47px;
+    }
+
+    .option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 47px;
+        padding: 8px 11px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #f7f7f9;
+        color: #55555b;
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .option-letter {
+        width: 29px;
+        height: 29px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 9px;
+        background: #e9e9ed;
+        color: #77777d;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    .option.user-correct {
+        border-color: rgba(22, 163, 74, .18);
+        background: #effbf3;
+        color: #166534;
+    }
+
+    .option.user-correct .option-letter {
+        color: #fff;
+        background: var(--green);
+    }
+
+    .option.user-wrong {
+        border-color: rgba(220, 38, 38, .18);
+        background: #fff1f2;
+        color: #991b1b;
+    }
+
+    .option.user-wrong .option-letter {
+        color: #fff;
+        background: var(--red);
+    }
+
+    .correct-answer {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        color: #15803d;
+        background: #dcfce7;
+        font-size: 8px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    /* Explanation */
+
+    .explanation {
+        margin: 12px 0 0 47px;
+        padding: 12px 14px;
+        border-left: 3px solid var(--blue);
+        border-radius: 0 11px 11px 0;
+        background: #edf6ff;
+        color: #075985;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    /* Actions */
+
+    .actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 22px;
+    }
+
+    .action {
+        min-height: 43px;
+        padding: 0 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 700;
+        transition: .2s;
+    }
+
+    .action:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-primary {
+        color: #fff;
+        background: linear-gradient(135deg, #0071e3, #2997ff);
+        box-shadow: 0 9px 22px rgba(0, 113, 227, .18);
+    }
+
+    .action-outline {
+        color: var(--text);
+        background: rgba(255, 255, 255, .85);
+        border: 1px solid var(--line);
+    }
+
+    .action-dark {
+        color: #fff;
+        background: #1d1d1f;
+    }
+
+    /* Animation */
+
+    @keyframes reveal {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Mobile */
+
+    @media(max-width:650px) {
+
+        .result-page {
+            padding: 27px 13px 75px;
+        }
+
+        .summary {
+            padding: 27px 17px;
+            border-radius: 24px;
+        }
+
+        .score-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .review-header {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 19px 17px;
+        }
+
+        .review-item {
+            padding: 20px 17px;
+        }
+
+        .options {
+            margin-left: 0;
+        }
+
+        .explanation {
+            margin-left: 0;
+        }
+
+        .option {
+            align-items: flex-start;
+        }
+
+        .correct-answer {
+            display: none;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+
+        .action {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="result-page">
+
+    <div class="glow glow-a"></div>
+    <div class="glow glow-b"></div>
+
+    <main class="result-container">
+
+        <!-- Breadcrumb -->
+
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+
+            <a href="{{ url_for('index') }}">
+                Home
+            </a>
+
+            <i data-lucide="chevron-right" width="12"></i>
+
+            <a href="{{ url_for('quizzes.index') }}">
+                Quizzes
+            </a>
+
+            <i data-lucide="chevron-right" width="12"></i>
+
+            <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}">
+                {{ quiz.title }}
+            </a>
+
+            <i data-lucide="chevron-right" width="12"></i>
+
+            <span class="breadcrumb-current">
+                Results
+            </span>
+
+        </nav>
+
+
+        <!-- Result Summary -->
+
+        <section class="summary">
+
+            <div class="result-icon {% if attempt.passed %}pass{% else %}fail{% endif %}">
+
+                {% if attempt.passed %}
+
+                <i data-lucide="check-circle" width="43"></i>
+
+                {% else %}
+
+                <i data-lucide="x-circle" width="43"></i>
+
+                {% endif %}
+
+            </div>
+
+
+            <h1 class="result-title">
+                {{ quiz.title }}
+            </h1>
+
+
+            <p class="result-meta">
+                {{ quiz.subject.name }}
+                ·
+                {{ attempt.completed_at.strftime('%B %d, %Y') }}
+            </p>
+
+
+            <!-- Score Grid -->
+
+            <div class="score-grid">
+
+                <div class="score-box">
+
+                    <div class="score-value {% if attempt.passed %}pass{% else %}fail{% endif %}">
+                        {{ attempt.percentage }}%
+                    </div>
+
+                    <div class="score-label">
+                        Score
+                    </div>
+
+                </div>
+
+
+                <div class="score-box">
+
+                    <div class="score-value">
+                        {{ attempt.correct_answers }}/{{ attempt.total_questions }}
+                    </div>
+
+                    <div class="score-label">
+                        Correct
+                    </div>
+
+                </div>
+
+
+                <div class="score-box">
+
+                    <div class="score-value">
+                        {{ attempt.time_taken // 60 }}m {{ attempt.time_taken % 60 }}s
+                    </div>
+
+                    <div class="score-label">
+                        Time Taken
+                    </div>
+
+                </div>
+
+
+                <div class="score-box">
+
+                    <div class="score-value">
+                        {{ quiz.passing_score }}%
+                    </div>
+
+                    <div class="score-label">
+                        Passing Score
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Status -->
+
+            {% if attempt.passed %}
+
+            <div class="result-message pass">
+
+                <i data-lucide="trophy" width="15"></i>
+
+                Congratulations! You passed!
+
+            </div>
+
+            {% else %}
+
+            <div class="result-message fail">
+
+                <i data-lucide="refresh-cw" width="15"></i>
+
+                Keep practicing! You need
+                {{ quiz.passing_score }}% to pass.
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- Review -->
+
+        <section class="review">
+
+            <header class="review-header">
+
+                <h2 class="review-title">
+                    Question Review
+                </h2>
+
+                <div class="legend">
+
+                    <span>
+                        <i data-lucide="check-circle" width="12" style="color:#16a34a"></i>
+                        Correct
+                    </span>
+
+                    <span>
+                        <i data-lucide="x-circle" width="12" style="color:#dc2626"></i>
+                        Incorrect
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            {% for question in questions %}
+
+            {% set user_answer =
+            attempt.answers.get(question.id|string, '') %}
+
+            <article class="review-item">
+
+                <!-- Question -->
+
+                <div class="question-head">
+
+                    <span class="question-number
+                        {% if user_answer == question.correct_answer %}
+                            correct
+                        {% else %}
+                            incorrect
+                        {% endif %}">
+
+                        {% if user_answer == question.correct_answer %}
+
+                        <i data-lucide="check" width="15"></i>
+
+                        {% else %}
+
+                        <i data-lucide="x" width="15"></i>
+
+                        {% endif %}
+
+                    </span>
+
+
+                    <p class="question-text">
+                        {{ loop.index }}.
+                        {{ question.question_text }}
+                    </p>
+
+                </div>
+
+
+                <!-- Options -->
+
+                <div class="options">
+
+                    <!-- A -->
+
+                    <div class="option
+                        {% if user_answer == 'A' %}
+                            {% if user_answer == question.correct_answer %}
+                                user-correct
+                            {% else %}
+                                user-wrong
+                            {% endif %}
+                        {% endif %}">
+
+                        <span class="option-letter">
+
+                            {% if user_answer == 'A'
+                            and user_answer == question.correct_answer %}
+
+                            <i data-lucide="check" width="13"></i>
+
+                            {% elif user_answer == 'A' %}
+
+                            <i data-lucide="x" width="13"></i>
+
+                            {% else %}
+
+                            A
+
+                            {% endif %}
+
+                        </span>
+
+                        <span>
+                            {{ question.option_a }}
+                        </span>
+
+                        {% if question.correct_answer == 'A'
+                        and user_answer != 'A' %}
+
+                        <span class="correct-answer">
+                            <i data-lucide="check" width="10"></i>
+                            Correct
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- B -->
+
+                    <div class="option
+                        {% if user_answer == 'B' %}
+                            {% if user_answer == question.correct_answer %}
+                                user-correct
+                            {% else %}
+                                user-wrong
+                            {% endif %}
+                        {% endif %}">
+
+                        <span class="option-letter">
+
+                            {% if user_answer == 'B'
+                            and user_answer == question.correct_answer %}
+
+                            <i data-lucide="check" width="13"></i>
+
+                            {% elif user_answer == 'B' %}
+
+                            <i data-lucide="x" width="13"></i>
+
+                            {% else %}
+
+                            B
+
+                            {% endif %}
+
+                        </span>
+
+                        <span>
+                            {{ question.option_b }}
+                        </span>
+
+                        {% if question.correct_answer == 'B'
+                        and user_answer != 'B' %}
+
+                        <span class="correct-answer">
+                            <i data-lucide="check" width="10"></i>
+                            Correct
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- C -->
+
+                    <div class="option
+                        {% if user_answer == 'C' %}
+                            {% if user_answer == question.correct_answer %}
+                                user-correct
+                            {% else %}
+                                user-wrong
+                            {% endif %}
+                        {% endif %}">
+
+                        <span class="option-letter">
+
+                            {% if user_answer == 'C'
+                            and user_answer == question.correct_answer %}
+
+                            <i data-lucide="check" width="13"></i>
+
+                            {% elif user_answer == 'C' %}
+
+                            <i data-lucide="x" width="13"></i>
+
+                            {% else %}
+
+                            C
+
+                            {% endif %}
+
+                        </span>
+
+                        <span>
+                            {{ question.option_c }}
+                        </span>
+
+                        {% if question.correct_answer == 'C'
+                        and user_answer != 'C' %}
+
+                        <span class="correct-answer">
+                            <i data-lucide="check" width="10"></i>
+                            Correct
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- D -->
+
+                    <div class="option
+                        {% if user_answer == 'D' %}
+                            {% if user_answer == question.correct_answer %}
+                                user-correct
+                            {% else %}
+                                user-wrong
+                            {% endif %}
+                        {% endif %}">
+
+                        <span class="option-letter">
+
+                            {% if user_answer == 'D'
+                            and user_answer == question.correct_answer %}
+
+                            <i data-lucide="check" width="13"></i>
+
+                            {% elif user_answer == 'D' %}
+
+                            <i data-lucide="x" width="13"></i>
+
+                            {% else %}
+
+                            D
+
+                            {% endif %}
+
+                        </span>
+
+                        <span>
+                            {{ question.option_d }}
+                        </span>
+
+                        {% if question.correct_answer == 'D'
+                        and user_answer != 'D' %}
+
+                        <span class="correct-answer">
+                            <i data-lucide="check" width="10"></i>
+                            Correct
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Explanation -->
+
+                {% if question.explanation %}
+
+                <div class="explanation">
+
+                    <strong>Explanation:</strong>
+
+                    {{ question.explanation }}
+
+                </div>
+
+                {% endif %}
+
+            </article>
+
+            {% endfor %}
+
+        </section>
+
+
+        <!-- Actions -->
+
+        <div class="actions">
+
+            <a href="{{ url_for('quizzes.view', quiz_id=quiz.id) }}" class="action action-outline">
+
+                <i data-lucide="rotate-ccw" width="14"></i>
+
+                Retry Quiz
+
+            </a>
+
+
+            <a href="{{ url_for('quizzes.my_attempts') }}" class="action action-primary">
+
+                <i data-lucide="clipboard-list" width="14"></i>
+
+                My Attempts
+
+            </a>
+
+
+            <a href="{{ url_for('dashboard.index') }}" class="action action-dark">
+
+                <i data-lucide="layout-dashboard" width="14"></i>
+
+                Dashboard
+
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,1547 @@
+<nav class="study-navbar" aria-label="Top navigation">
+
+    <div class="navbar-inner">
+
+        <!-- Brand -->
+
+        <a href="{{ url_for('dashboard.index') }}" class="study-brand" aria-label="StudyHub Home">
+            <span class="brand-icon">
+                <i data-lucide="book-open"></i>
+            </span>
+
+            <span class="brand-name">
+                StudyHub
+            </span>
+        </a>
+
+
+        {% if current_user.is_authenticated %}
+
+        <!-- Desktop Navigation -->
+
+        <div class="top-links">
+
+            <a href="{{ url_for('dashboard.index') }}" class="top-link">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('subjects.index') }}" class="top-link">
+                Subjects
+            </a>
+
+            <a href="{{ url_for('materials.upload') }}" class="top-link">
+                Materials
+            </a>
+
+            <a href="{{ url_for('doubts.index') }}" class="top-link">
+                Doubts
+            </a>
+
+            <a href="{{ url_for('discussions.index') }}" class="top-link">
+                Discussions
+            </a>
+
+            <a href="{{ url_for('groups.index') }}" class="top-link">
+                Groups
+            </a>
+
+            <a href="{{ url_for('quizzes.index') }}" class="top-link">
+                Quizzes
+            </a>
+
+        </div>
+
+
+        <!-- Right Controls -->
+
+        <div class="navbar-actions">
+
+            <!-- Search -->
+
+            <a href="{{ url_for('search.index') }}" class="search-button" title="Search">
+
+                <i data-lucide="search"></i>
+
+                <span>Search</span>
+
+                <kbd>⌘K</kbd>
+
+            </a>
+
+
+            <!-- Notifications -->
+
+            <div class="notification-wrap" id="notifications-dropdown-container">
+
+                <button id="notifications-btn" type="button" class="notification-button" aria-label="Notifications"
+                    aria-expanded="false">
+
+                    <i data-lucide="bell"></i>
+
+                    {% set unread =
+                    Notification.query
+                    .filter_by(
+                    user_id=current_user.id,
+                    is_read=False
+                    )
+                    .count()
+                    %}
+
+                    {% if unread > 0 %}
+
+                    <span class="notification-badge">
+
+                        {{ unread if unread < 10 else '9+' }} </span>
+
+                            {% endif %}
+
+                </button>
+
+
+                <!-- Notification Dropdown -->
+
+                <div id="notifications-dropdown" class="notification-dropdown">
+
+                    <div class="notification-header">
+
+                        <strong>
+                            Notifications
+                        </strong>
+
+                        {% if unread > 0 %}
+
+                        <button type="button" onclick="markAllNotificationsRead()" class="mark-read">
+                            Mark all read
+                        </button>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div id="notifications-list" class="notification-list">
+
+                        {% set recent_notifications =
+                        Notification.query
+                        .filter_by(user_id=current_user.id)
+                        .order_by(
+                        Notification.created_at.desc()
+                        )
+                        .limit(5)
+                        .all()
+                        %}
+
+
+                        {% if recent_notifications %}
+
+                        {% for n in recent_notifications %}
+
+                        <a href="#" class="notification-item {% if not n.is_read %}unread{% endif %}"
+                            data-notification-id="{{ n.id }}">
+
+                            <div class="notification-text">
+
+                                <div class="notification-title">
+                                    {{ n.title }}
+                                </div>
+
+                                <div class="notification-message">
+                                    {{ n.message }}
+                                </div>
+
+                            </div>
+
+
+                            {% if not n.is_read %}
+
+                            <span class="unread-dot"></span>
+
+                            {% endif %}
+
+                        </a>
+
+                        {% endfor %}
+
+                        {% else %}
+
+                        <div class="empty-notifications">
+
+                            <i data-lucide="bell-off"></i>
+
+                            <span>
+                                No notifications yet
+                            </span>
+
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="notification-footer">
+
+                        <a href="{{ url_for('dashboard.notifications') }}">
+                            View all notifications
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- User Menu -->
+
+            <div class="user-menu-wrap" id="user-menu-container">
+
+                <button id="user-menu-btn" type="button" class="user-menu-button" aria-label="Account menu"
+                    aria-expanded="false" aria-haspopup="true">
+
+                    <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}"
+                        alt="" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.name|urlencode }}&background=0066cc&color=fff'">
+
+                    <span class="user-name">{{ current_user.name }}</span>
+
+                    <i data-lucide="chevron-down" class="user-chevron"></i>
+
+                </button>
+
+                <div id="user-menu" class="user-dropdown" role="menu" aria-label="Account menu">
+
+                    <div class="user-dropdown-header">
+
+                        <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}"
+                            alt="" class="user-dropdown-avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.name|urlencode }}&background=0066cc&color=fff&size=64'">
+
+                        <div class="user-dropdown-info">
+
+                            <span class="user-dropdown-name">{{ current_user.name }}</span>
+
+                            <span class="user-dropdown-email">{{ current_user.email }}</span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="user-dropdown-divider"></div>
+
+                    <nav class="user-dropdown-menu" role="menu">
+
+                        <a href="{{ url_for('auth.profile') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="user"></i>
+                            <span>Profile</span>
+                        </a>
+
+                        <a href="{{ url_for('progress.index') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="trending-up"></i>
+                            <span>Progress</span>
+                        </a>
+
+                        <a href="{{ url_for('auth.change_password') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="lock"></i>
+                            <span>Security</span>
+                        </a>
+
+                        <div class="user-dropdown-divider"></div>
+
+                        <a href="{{ url_for('groups.my_groups') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="users"></i>
+                            <span>My Groups</span>
+                        </a>
+
+                        <a href="{{ url_for('doubts.my_doubts') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="help-circle"></i>
+                            <span>My Doubts</span>
+                        </a>
+
+                        <a href="{{ url_for('discussions.my_discussions') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="message-square"></i>
+                            <span>My Discussions</span>
+                        </a>
+
+                        <a href="{{ url_for('quizzes.my_attempts') }}" class="user-dropdown-item" role="menuitem">
+                            <i data-lucide="clipboard-check"></i>
+                            <span>Quiz Attempts</span>
+                        </a>
+
+                        <div class="user-dropdown-divider"></div>
+
+                        <form action="{{ url_for('auth.logout') }}" method="POST" style="margin: 0;">
+
+                            <button type="submit" class="user-dropdown-item user-dropdown-logout" role="menuitem">
+                                <i data-lucide="log-out"></i>
+                                <span>Logout</span>
+                            </button>
+
+                        </form>
+
+                    </nav>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <!-- Guest -->
+
+        <div class="guest-actions">
+
+            <a href="{{ url_for('auth.login') }}" class="login-link">
+                Login
+            </a>
+
+            <a href="{{ url_for('auth.register') }}" class="signup-button">
+                Sign Up
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</nav>
+
+
+<style>
+    /* =========================================
+   NAVBAR
+========================================= */
+
+    .study-navbar {
+
+        position: fixed;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        height: 64px;
+
+        z-index: 900;
+
+        background:
+            rgba(255, 255, 255, .82);
+
+        border-bottom:
+            1px solid rgba(0, 0, 0, .06);
+
+        backdrop-filter:
+            blur(22px) saturate(180%);
+
+        -webkit-backdrop-filter:
+            blur(22px) saturate(180%);
+
+    }
+
+
+    .navbar-inner {
+
+        height: 100%;
+
+        max-width: 1450px;
+
+        margin: 0 auto;
+
+        padding:
+            0 24px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 24px;
+
+    }
+
+
+    /* =========================================
+   BRAND
+========================================= */
+
+    .study-brand {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        text-decoration: none;
+
+        flex-shrink: 0;
+
+    }
+
+
+    .brand-icon {
+
+        width: 32px;
+        height: 32px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 10px;
+
+        color: white;
+
+        background:
+            linear-gradient(135deg,
+                #0071e3,
+                #2997ff);
+
+        box-shadow:
+            0 6px 16px rgba(0, 113, 227, .20);
+
+    }
+
+
+    .brand-icon svg {
+
+        width: 17px;
+        height: 17px;
+
+    }
+
+
+    .brand-name {
+
+        color: #1d1d1f;
+
+        font-size: 14px;
+
+        font-weight: 750;
+
+        letter-spacing: -.3px;
+
+    }
+
+
+    /* =========================================
+   TOP LINKS
+========================================= */
+
+    .top-links {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 2px;
+
+        flex: 1;
+
+    }
+
+
+    .top-link {
+
+        padding:
+            8px 10px;
+
+        border-radius: 9px;
+
+        color: #6e6e73;
+
+        text-decoration: none;
+
+        font-size: 10px;
+
+        font-weight: 650;
+
+        white-space: nowrap;
+
+        transition:
+            color .18s,
+            background .18s;
+
+    }
+
+
+    .top-link:hover {
+
+        color: #1d1d1f;
+
+        background:
+            rgba(0, 0, 0, .045);
+
+    }
+
+
+    /* =========================================
+   ACTIONS
+========================================= */
+
+    .navbar-actions {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        margin-left: auto;
+
+    }
+
+
+    /* =========================================
+   SEARCH
+========================================= */
+
+    .search-button {
+
+        height: 36px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        padding:
+            0 11px;
+
+        border-radius: 10px;
+
+        color: #6e6e73;
+
+        background:
+            rgba(0, 0, 0, .045);
+
+        text-decoration: none;
+
+        font-size: 9px;
+
+        font-weight: 600;
+
+        transition: .18s;
+
+    }
+
+
+    .search-button:hover {
+
+        color: #1d1d1f;
+
+        background:
+            rgba(0, 0, 0, .075);
+
+    }
+
+
+    .search-button svg {
+
+        width: 15px;
+        height: 15px;
+
+    }
+
+
+    .search-button kbd {
+
+        padding:
+            2px 5px;
+
+        border-radius: 5px;
+
+        color: #777;
+
+        background: white;
+
+        border:
+            1px solid rgba(0, 0, 0, .07);
+
+        font-size: 8px;
+
+    }
+
+
+    /* =========================================
+   NOTIFICATIONS
+========================================= */
+
+    .notification-wrap {
+
+        position: relative;
+
+    }
+
+
+    .notification-button {
+
+        position: relative;
+
+        width: 36px;
+        height: 36px;
+
+        display: grid;
+        place-items: center;
+
+        border: 0;
+
+        border-radius: 10px;
+
+        color: #6e6e73;
+
+        background: transparent;
+
+        cursor: pointer;
+
+        transition: .18s;
+
+    }
+
+
+    .notification-button:hover {
+
+        color: #1d1d1f;
+
+        background:
+            rgba(0, 0, 0, .05);
+
+    }
+
+
+    .notification-button svg {
+
+        width: 17px;
+        height: 17px;
+
+    }
+
+
+    .notification-badge {
+
+        position: absolute;
+
+        top: 2px;
+        right: 1px;
+
+        min-width: 15px;
+        height: 15px;
+
+        padding: 0 3px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        color: white;
+
+        background: #ef4444;
+
+        font-size: 7px;
+
+        font-weight: 750;
+
+        border:
+            2px solid white;
+
+    }
+
+
+    /* =========================================
+   NOTIFICATION DROPDOWN
+========================================= */
+
+    .notification-dropdown {
+
+        position: absolute;
+
+        top: 45px;
+        right: 0;
+
+        width: 325px;
+
+        display: none;
+
+        overflow: hidden;
+
+        border-radius: 17px;
+
+        background:
+            rgba(255, 255, 255, .96);
+
+        border:
+            1px solid rgba(0, 0, 0, .07);
+
+        box-shadow:
+            0 22px 55px rgba(0, 0, 0, .14);
+
+        backdrop-filter:
+            blur(24px);
+
+        -webkit-backdrop-filter:
+            blur(24px);
+
+    }
+
+
+    .notification-dropdown.show {
+
+        display: block;
+
+        animation:
+            dropdownIn .18s cubic-bezier(.16, 1, .3, 1);
+
+    }
+
+
+    .notification-header {
+
+        padding:
+            13px 15px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        border-bottom:
+            1px solid rgba(0, 0, 0, .06);
+
+    }
+
+
+    .notification-header strong {
+
+        color: #1d1d1f;
+
+        font-size: 11px;
+
+    }
+
+
+    .mark-read {
+
+        border: 0;
+
+        padding: 0;
+
+        background: none;
+
+        color: #0071e3;
+
+        font-size: 8px;
+
+        font-weight: 650;
+
+        cursor: pointer;
+
+    }
+
+
+    .notification-list {
+
+        max-height: 300px;
+
+        overflow-y: auto;
+
+    }
+
+
+    .notification-item {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        padding:
+            12px 15px;
+
+        color: inherit;
+
+        text-decoration: none;
+
+        border-bottom:
+            1px solid rgba(0, 0, 0, .035);
+
+        transition: .15s;
+
+    }
+
+
+    .notification-item:hover {
+
+        background:
+            rgba(0, 0, 0, .035);
+
+    }
+
+
+    .notification-item.unread {
+
+        background:
+            rgba(0, 113, 227, .045);
+
+    }
+
+
+    .notification-text {
+
+        min-width: 0;
+
+        flex: 1;
+
+    }
+
+
+    .notification-title {
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+
+        color: #1d1d1f;
+
+        font-size: 9px;
+
+        font-weight: 700;
+
+    }
+
+
+    .notification-message {
+
+        margin-top: 2px;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+
+        color: #777;
+
+        font-size: 8px;
+
+    }
+
+
+    .unread-dot {
+
+        width: 6px;
+        height: 6px;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: #0071e3;
+
+    }
+
+
+    .empty-notifications {
+
+        min-height: 120px;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 7px;
+
+        color: #999;
+
+        font-size: 9px;
+
+    }
+
+
+    .empty-notifications svg {
+
+        width: 20px;
+        height: 20px;
+
+    }
+
+
+    .notification-footer {
+
+        padding: 10px 15px;
+
+        border-top:
+            1px solid rgba(0, 0, 0, .06);
+
+        text-align: center;
+
+    }
+
+
+    .notification-footer a {
+
+        color: #0071e3;
+
+        text-decoration: none;
+
+        font-size: 9px;
+
+        font-weight: 650;
+
+    }
+
+
+    /* =========================================
+   USER MENU DROPDOWN
+========================================= */
+
+    .user-menu-wrap {
+
+        position: relative;
+
+    }
+
+
+    .user-menu-button {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        padding: 6px 10px 6px 8px;
+
+        border: 0;
+
+        border-radius: 10px;
+
+        color: #1d1d1f;
+
+        background: transparent;
+
+        cursor: pointer;
+
+        transition: .18s;
+
+    }
+
+
+    .user-menu-button:hover {
+
+        background: rgba(0, 0, 0, .05);
+
+    }
+
+
+    .user-menu-button:focus-visible {
+
+        outline: none;
+
+        box-shadow: 0 0 0 3px #fafafa, 0 0 0 5px #0071e3;
+
+    }
+
+
+    .user-avatar {
+
+        width: 28px;
+
+        height: 28px;
+
+        border-radius: 50%;
+
+        object-fit: cover;
+
+        border: 1px solid rgba(0, 0, 0, .06);
+
+    }
+
+
+    .user-name {
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        color: #1d1d1f;
+
+        max-width: 120px;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+
+    }
+
+
+    .user-chevron {
+
+        width: 14px;
+
+        height: 14px;
+
+        color: #6e6e73;
+
+        transition: transform .18s;
+
+    }
+
+
+    .user-menu-button[aria-expanded="true"] .user-chevron {
+
+        transform: rotate(180deg);
+
+    }
+
+
+    .user-dropdown {
+
+        position: absolute;
+
+        top: 45px;
+
+        right: 0;
+
+        min-width: 260px;
+
+        max-width: 280px;
+
+        display: none;
+
+        overflow: hidden;
+
+        border-radius: 16px;
+
+        background: rgba(255, 255, 255, .96);
+
+        border: 1px solid rgba(0, 0, 0, .07);
+
+        box-shadow: 0 24px 60px rgba(0, 0, 0, .16);
+
+        backdrop-filter: blur(24px);
+
+        -webkit-backdrop-filter: blur(24px);
+
+        z-index: 1000;
+
+        animation: dropdownIn .18s cubic-bezier(.16, 1, .3, 1);
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .user-dropdown {
+
+            position: fixed;
+
+            top: auto;
+
+            bottom: 70px;
+
+            left: 12px;
+
+            right: 12px;
+
+            width: auto;
+
+            min-width: auto;
+
+            max-width: none;
+
+            border-radius: 16px 16px 0 0;
+
+        }
+
+    }
+
+
+    .user-dropdown.show {
+
+        display: block;
+
+    }
+
+
+    .user-dropdown-header {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        padding: 14px 16px;
+
+        border-bottom: 1px solid rgba(0, 0, 0, .06);
+
+    }
+
+
+    .user-dropdown-avatar {
+
+        width: 44px;
+
+        height: 44px;
+
+        border-radius: 12px;
+
+        object-fit: cover;
+
+        border: 1px solid rgba(0, 0, 0, .06);
+
+    }
+
+
+    .user-dropdown-info {
+
+        flex: 1;
+
+        min-width: 0;
+
+    }
+
+
+    .user-dropdown-name {
+
+        display: block;
+
+        color: #1d1d1f;
+
+        font-size: 15px;
+
+        font-weight: 650;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+    }
+
+
+    .user-dropdown-email {
+
+        display: block;
+
+        margin-top: 2px;
+
+        color: #6e6e73;
+
+        font-size: 12px;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+    }
+
+
+    .user-dropdown-divider {
+
+        height: 1px;
+
+        background: rgba(0, 0, 0, .06);
+
+        margin: 0;
+
+    }
+
+
+    .user-dropdown-menu {
+
+        padding: 6px 0;
+
+    }
+
+
+    .user-dropdown-item {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        padding: 11px 16px;
+
+        color: #1d1d1f;
+
+        text-decoration: none;
+
+        font-size: 14px;
+
+        font-weight: 500;
+
+        transition: background .12s, color .12s;
+
+    }
+
+
+    .user-dropdown-item:hover {
+
+        background: rgba(0, 0, 0, .04);
+
+        color: #0071e3;
+
+    }
+
+
+    .user-dropdown-item svg {
+
+        width: 18px;
+
+        height: 18px;
+
+        flex-shrink: 0;
+
+        color: #6e6e73;
+
+        transition: color .12s;
+
+    }
+
+
+    .user-dropdown-item:hover svg {
+
+        color: #0071e3;
+
+    }
+
+
+    .user-dropdown-logout {
+
+        color: #ef4444;
+
+    }
+
+
+    .user-dropdown-logout:hover {
+
+        background: #fef2f2;
+
+        color: #ef4444;
+
+    }
+
+
+    .user-dropdown-divider {
+
+        height: 1px;
+
+        background: rgba(0, 0, 0, .06);
+
+        margin: 6px 0;
+
+    }
+
+
+    /* =========================================
+   GUEST
+========================================= */
+
+    .guest-actions {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        margin-left: auto;
+
+    }
+
+
+    .login-link {
+
+        color: #6e6e73;
+
+        text-decoration: none;
+
+        font-size: 10px;
+
+        font-weight: 650;
+
+    }
+
+
+    .signup-button {
+
+        padding:
+            8px 13px;
+
+        border-radius: 9px;
+
+        color: white;
+
+        background:
+            #0071e3;
+
+        text-decoration: none;
+
+        font-size: 9px;
+
+        font-weight: 700;
+
+    }
+
+
+    /* =========================================
+   ANIMATION
+========================================= */
+
+    @keyframes dropdownIn {
+
+        from {
+
+            opacity: 0;
+
+            transform:
+                translateY(-5px) scale(.97);
+
+        }
+
+        to {
+
+            opacity: 1;
+
+            transform:
+                translateY(0) scale(1);
+
+        }
+
+    }
+
+
+    /* =========================================
+   MOBILE
+========================================= */
+
+    @media (max-width: 900px) {
+
+        .top-links {
+
+            display: none;
+
+        }
+
+        .search-button span,
+        .search-button kbd {
+
+            display: none;
+
+        }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .study-navbar {
+
+            height: 58px;
+
+        }
+
+        .navbar-inner {
+
+            padding:
+                0 12px;
+
+        }
+
+        .brand-name {
+
+            display: none;
+
+        }
+
+        .notification-dropdown {
+
+            position: fixed;
+
+            top: 66px;
+
+            left: 12px;
+            right: 12px;
+
+            width: auto;
+
+        }
+
+        .study-navbar {
+
+            z-index: 850;
+
+        }
+
+    }
+</style>
+
+
+<script>
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+
+            if (window.lucide) {
+
+                lucide.createIcons();
+
+            }
+
+
+            /* ================================
+               NOTIFICATION TOGGLE
+            ================================= */
+
+            const notificationBtn =
+                document.getElementById(
+                    'notifications-btn'
+                );
+
+            const notificationDropdown =
+                document.getElementById(
+                    'notifications-dropdown'
+                );
+
+
+            notificationBtn?.addEventListener(
+                'click',
+                function (event) {
+
+                    event.stopPropagation();
+
+                    const isOpen =
+                        notificationDropdown.classList.contains(
+                            'show'
+                        );
+
+
+                    notificationDropdown.classList.toggle(
+                        'show'
+                    );
+
+
+                    notificationBtn.setAttribute(
+                        'aria-expanded',
+                        String(!isOpen)
+                    );
+
+                }
+            );
+
+
+            notificationDropdown?.addEventListener(
+                'click',
+                function (event) {
+
+                    event.stopPropagation();
+
+                }
+            );
+
+
+            document.addEventListener(
+                'click',
+                function () {
+
+                    notificationDropdown?.classList.remove(
+                        'show'
+                    );
+
+                    notificationBtn?.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+
+                }
+            );
+
+
+            /* ================================
+               ESCAPE
+================================= */
+
+            document.addEventListener(
+                'keydown',
+                function (event) {
+
+                    if (event.key === 'Escape') {
+
+                        notificationDropdown?.classList.remove(
+                            'show'
+                        );
+
+                    }
+
+                }
+            );
+
+            /* ================================
+               USER MENU TOGGLE
+               ================================= */
+
+            const userMenuBtn =
+                document.getElementById(
+                    'user-menu-btn'
+                );
+
+            const userMenu =
+                document.getElementById(
+                    'user-menu'
+                );
+
+            function closeAllDropdowns() {
+                notificationDropdown?.classList.remove('show');
+                userMenu?.classList.remove('show');
+                notificationBtn?.setAttribute('aria-expanded', 'false');
+                userMenuBtn?.setAttribute('aria-expanded', 'false');
+            }
+
+            userMenuBtn?.addEventListener('click', function (event) {
+                event.stopPropagation();
+
+                const isOpen = userMenu.classList.contains('show');
+
+                notificationDropdown?.classList.remove('show');
+                notificationBtn?.setAttribute('aria-expanded', 'false');
+
+                userMenu.classList.toggle('show');
+
+                userMenuBtn.setAttribute('aria-expanded', String(!isOpen));
+            });
+
+            userMenu?.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+
+            document.addEventListener('click', function () {
+                closeAllDropdowns();
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeAllDropdowns();
+                }
+            });
+
+        }
+    );
+</script>

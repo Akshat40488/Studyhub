@@ -1,0 +1,836 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .doubts-page {
+        min-height: 100vh;
+        padding: 82px 20px 110px;
+        box-sizing: border-box;
+        background:
+            radial-gradient(circle at 5% 5%, rgba(96, 165, 250, .15), transparent 28%),
+            radial-gradient(circle at 95% 15%, rgba(244, 114, 182, .12), transparent 28%),
+            radial-gradient(circle at 50% 100%, rgba(167, 139, 250, .11), transparent 35%),
+            #f5f5f7;
+        color: #1d1d1f;
+    }
+
+    .doubts-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .doubts-header {
+        margin-bottom: 26px;
+    }
+
+    .doubts-header-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .doubts-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .75);
+        border: 1px solid rgba(255, 255, 255, .9);
+        color: #6e6e73;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .04);
+    }
+
+    .doubts-eyebrow i {
+        color: #0071e3;
+    }
+
+    .doubts-title {
+        margin: 17px 0 7px;
+        font-size: clamp(38px, 5vw, 58px);
+        line-height: 1;
+        letter-spacing: -3px;
+        font-weight: 760;
+    }
+
+    .doubts-gradient {
+        background: linear-gradient(100deg,
+                #0071e3,
+                #8b5cf6 55%,
+                #ec4899);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .doubts-subtitle {
+        margin: 0;
+        color: #6e6e73;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .doubts-ask-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 47px;
+        padding: 0 18px;
+        border-radius: 15px;
+        color: #fff;
+        background: linear-gradient(135deg, #0071e3, #2997ff);
+        box-shadow: 0 12px 28px rgba(0, 113, 227, .23);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: .22s ease;
+    }
+
+    .doubts-ask-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 17px 35px rgba(0, 113, 227, .30);
+    }
+
+    .doubts-filter {
+        padding: 18px;
+        margin-bottom: 18px;
+        border-radius: 25px;
+        background: rgba(255, 255, 255, .80);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow:
+            0 22px 65px rgba(0, 0, 0, .07),
+            0 5px 18px rgba(0, 0, 0, .035);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .doubts-filter-form {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) 180px 170px auto;
+        gap: 10px;
+    }
+
+    .doubts-search {
+        position: relative;
+    }
+
+    .doubts-search>i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8e8e93;
+        pointer-events: none;
+    }
+
+    .doubts-input {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        box-sizing: border-box;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 0, 0, .08);
+        background: #f8f8fa;
+        color: #1d1d1f;
+        outline: none;
+        font: inherit;
+        font-size: 12px;
+        transition: .2s ease;
+    }
+
+    .doubts-search .doubts-input {
+        padding-left: 42px;
+    }
+
+    .doubts-input:focus {
+        background: #fff;
+        border-color: rgba(0, 113, 227, .35);
+        box-shadow: 0 0 0 4px rgba(0, 113, 227, .07);
+    }
+
+    .doubts-filter-btn {
+        min-height: 46px;
+        padding: 0 17px;
+        border: 0;
+        border-radius: 14px;
+        background: #1d1d1f;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .doubts-filter-btn:hover {
+        background: #000;
+        transform: translateY(-2px);
+    }
+
+    .doubts-list {
+        overflow: hidden;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, .82);
+        border: 1px solid rgba(255, 255, 255, .9);
+        box-shadow:
+            0 22px 65px rgba(0, 0, 0, .07),
+            0 5px 18px rgba(0, 0, 0, .035);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .doubt-item {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 22px 24px;
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, .08);
+        transition: background .22s ease;
+    }
+
+    .doubt-item:last-child {
+        border-bottom: 0;
+    }
+
+    .doubt-item:hover {
+        background: rgba(248, 248, 250, .85);
+    }
+
+    .doubt-item:hover .doubt-arrow {
+        transform: translateX(4px);
+        color: #0071e3;
+    }
+
+    .doubt-main {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .doubt-badges {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 9px;
+    }
+
+    .doubt-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 25px;
+        padding: 0 9px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .doubt-subject {
+        color: #0066cc;
+        background: #e8f2ff;
+    }
+
+    .doubt-open {
+        color: #b45309;
+        background: #fff3df;
+    }
+
+    .doubt-resolved {
+        color: #15803d;
+        background: #e9f9ef;
+    }
+
+    .doubt-name {
+        margin: 0;
+        color: #1d1d1f;
+        font-size: 16px;
+        line-height: 1.35;
+        font-weight: 720;
+        letter-spacing: -.25px;
+    }
+
+    .doubt-content {
+        margin: 7px 0 0;
+        max-width: 760px;
+        color: #6e6e73;
+        font-size: 12px;
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .doubt-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 13px;
+        color: #8e8e93;
+        font-size: 10px;
+    }
+
+    .doubt-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .doubt-author {
+        color: #55555b;
+        font-weight: 600;
+    }
+
+    .doubt-avatar {
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .doubt-arrow {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        color: #8e8e93;
+        background: #f4f4f6;
+        transition: .22s ease;
+    }
+
+    .doubts-empty {
+        padding: 75px 25px;
+        text-align: center;
+    }
+
+    .doubts-empty-icon {
+        width: 70px;
+        height: 70px;
+        display: grid;
+        place-items: center;
+        margin: auto auto 18px;
+        border-radius: 22px;
+        color: #0071e3;
+        background: linear-gradient(145deg, #e8f2ff, #f0eaff);
+    }
+
+    .doubts-empty-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 720;
+        color: #1d1d1f;
+    }
+
+    .doubts-empty-description {
+        max-width: 430px;
+        margin: 8px auto 0;
+        color: #6e6e73;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .doubts-empty-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 20px;
+        padding: 12px 17px;
+        border-radius: 13px;
+        color: #fff;
+        background: #0071e3;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .doubts-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 18px 22px;
+        border-top: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .doubts-page-info {
+        color: #6e6e73;
+        font-size: 11px;
+    }
+
+    .doubts-page-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .doubts-page-btn {
+        min-height: 37px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border-radius: 11px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 650;
+        transition: .2s ease;
+    }
+
+    .doubts-page-prev {
+        color: #1d1d1f;
+        background: #f3f3f5;
+        border: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .doubts-page-next {
+        color: #fff;
+        background: #1d1d1f;
+    }
+
+    .doubts-page-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 900px) {
+
+        .doubts-filter-form {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .doubts-search {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 650px) {
+
+        .doubts-page {
+            padding: 65px 14px 80px;
+            box-sizing: border-box;
+        }
+
+        .doubts-header-row {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .doubts-title {
+            font-size: 40px;
+            letter-spacing: -2px;
+        }
+
+        .doubts-ask-btn {
+            width: 100%;
+        }
+
+        .doubts-filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .doubts-search {
+            grid-column: auto;
+        }
+
+        .doubt-item {
+            align-items: flex-start;
+            padding: 19px 17px;
+        }
+
+        .doubt-arrow {
+            width: 34px;
+            height: 34px;
+        }
+
+        .doubt-meta {
+            gap: 9px;
+        }
+
+        .doubts-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .doubts-page-actions {
+            justify-content: space-between;
+        }
+
+        .doubts-page-btn {
+            flex: 1;
+        }
+    }
+</style>
+
+
+<div class="doubts-page">
+
+    <main class="doubts-container">
+
+        <header class="doubts-header">
+
+            <div class="doubts-header-row">
+
+                <div>
+
+                    <div class="doubts-eyebrow">
+
+                        <i data-lucide="messages-square" width="13"></i>
+
+                        STUDY COMMUNITY
+
+                    </div>
+
+
+                    <h1 class="doubts-title">
+
+                        Doubts
+
+                        <span class="doubts-gradient">
+                            & Answers.
+                        </span>
+
+                    </h1>
+
+
+                    <p class="doubts-subtitle">
+                        Ask questions, share knowledge and help each other learn.
+                    </p>
+
+                </div>
+
+
+                {% if current_user.is_authenticated %}
+
+                <a href="{{ url_for('doubts.ask') }}" class="doubts-ask-btn">
+
+                    <i data-lucide="plus" width="17"></i>
+
+                    Ask a Doubt
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <section class="doubts-filter">
+
+            <form method="GET" action="{{ url_for('doubts.index') }}" class="doubts-filter-form">
+
+                <div class="doubts-search">
+
+                    <i data-lucide="search" width="17"></i>
+
+                    <input type="text" name="search" class="doubts-input" placeholder="Search doubts..."
+                        value="{{ search }}">
+
+                </div>
+
+
+                <select name="subject_id" class="doubts-input">
+
+                    <option value="">
+                        All Subjects
+                    </option>
+
+                    {% for subject in subjects %}
+
+                    <option value="{{ subject.id }}" {% if subject_id==subject.id %}selected{% endif %}>
+                        {{ subject.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <select name="filter" class="doubts-input">
+
+                    <option value="all" {% if filter_type=='all' %}selected{% endif %}>
+                        All Doubts
+                    </option>
+
+                    <option value="unanswered" {% if filter_type=='unanswered' %}selected{% endif %}>
+                        Unanswered
+                    </option>
+
+                    <option value="resolved" {% if filter_type=='resolved' %}selected{% endif %}>
+                        Resolved
+                    </option>
+
+                </select>
+
+
+                <button type="submit" class="doubts-filter-btn">
+
+                    <i data-lucide="sliders-horizontal" width="15"></i>
+
+                    Filter
+
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <section class="doubts-list">
+
+            {% if doubts.items %}
+
+            {% for doubt in doubts.items %}
+
+            <a href="{{ url_for('doubts.view', doubt_id=doubt.id) }}" class="doubt-item">
+
+                <div class="doubt-main">
+
+                    <div class="doubt-badges">
+
+                        <span class="doubt-badge doubt-subject">
+                            {{ doubt.subject.name }}
+                        </span>
+
+
+                        {% if doubt.is_resolved %}
+
+                        <span class="doubt-badge doubt-resolved">
+
+                            <i data-lucide="check-circle" width="11"></i>
+
+                            Resolved
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="doubt-badge doubt-open">
+
+                            <i data-lucide="help-circle" width="11"></i>
+
+                            Open
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <h2 class="doubt-name">
+                        {{ doubt.title }}
+                    </h2>
+
+
+                    <p class="doubt-content">
+                        {{ doubt.content }}
+                    </p>
+
+
+                    <div class="doubt-meta">
+
+                        <span class="doubt-meta-item doubt-author">
+
+                            <img src="{{ url_for('static', filename='images/' + doubt.author.avatar) }}" alt=""
+                                class="doubt-avatar"
+                                onerror="this.src='https://ui-avatars.com/api/?name={{ doubt.author.name }}&background=3B82F6&color=fff&size=30'">
+
+                            {{ doubt.author.name }}
+
+                        </span>
+
+
+                        <span class="doubt-meta-item">
+
+                            <i data-lucide="clock-3" width="12"></i>
+
+                            {{ doubt.created_at|timeago }}
+
+                        </span>
+
+
+                        <span class="doubt-meta-item">
+
+                            <i data-lucide="message-square" width="12"></i>
+
+                            {{ doubt.answers.count() }} answers
+
+                        </span>
+
+
+                        <span class="doubt-meta-item">
+
+                            <i data-lucide="eye" width="12"></i>
+
+                            {{ doubt.views }} views
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="doubt-arrow">
+
+                    <i data-lucide="chevron-right" width="17"></i>
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+
+            {% if doubts.pages > 1 %}
+
+            <div class="doubts-pagination">
+
+                <div class="doubts-page-info">
+
+                    Page {{ doubts.page }}
+                    of {{ doubts.pages }}
+
+                </div>
+
+
+                <div class="doubts-page-actions">
+
+                    {% if doubts.has_prev %}
+
+                    <a href="{{ url_for(
+                                'doubts.index',
+                                page=doubts.prev_num,
+                                subject_id=subject_id,
+                                filter=filter_type,
+                                search=search
+                            ) }}" class="doubts-page-btn doubts-page-prev">
+
+                        <i data-lucide="chevron-left" width="14"></i>
+
+                        Previous
+
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if doubts.has_next %}
+
+                    <a href="{{ url_for(
+                                'doubts.index',
+                                page=doubts.next_num,
+                                subject_id=subject_id,
+                                filter=filter_type,
+                                search=search
+                            ) }}" class="doubts-page-btn doubts-page-next">
+
+                        Next
+
+                        <i data-lucide="chevron-right" width="14"></i>
+
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+            {% else %}
+
+            <div class="doubts-empty">
+
+                <div class="doubts-empty-icon">
+
+                    <i data-lucide="help-circle" width="30"></i>
+
+                </div>
+
+
+                <h3 class="doubts-empty-title">
+                    No doubts found
+                </h3>
+
+
+                <p class="doubts-empty-description">
+
+                    {% if search or subject_id or filter_type != 'all' %}
+
+                    Try adjusting your filters to find more questions.
+
+                    {% else %}
+
+                    Be the first to ask a question and start a discussion.
+
+                    {% endif %}
+
+                </p>
+
+
+                {% if current_user.is_authenticated %}
+
+                <a href="{{ url_for('doubts.ask') }}" class="doubts-empty-action">
+
+                    <i data-lucide="plus" width="15"></i>
+
+                    Ask a Doubt
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+{% include "partials/footer.html" %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}
